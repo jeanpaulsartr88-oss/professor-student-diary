@@ -189,7 +189,7 @@ export const ProfessorCabinetScreen = () => {
             return (
               <div key={idx} className="space-y-1">
                 <div className="flex items-center space-x-2 text-[10px] text-[#d4af37] px-1">
-                  <span>Вы (Профессор Северов):</span>
+                  <span>Вы (Профессор Жунус Абаевич):</span>
                 </div>
                 <div className="bg-[#1c1b22] border-l-4 border-[#d4af37] p-3 rounded-r-xl text-xs font-serif-vintage text-[#fffffe] shadow-sm leading-relaxed">
                   «{msg.speech}»

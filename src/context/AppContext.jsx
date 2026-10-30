@@ -32,7 +32,7 @@ const getInitialStudentData = () => ({
   modulesState: getInitialModulesState(),
   claimedRewards: [],
   approvedRewards: ['reward_1'], // Professor already signed first perk as a courtesy
-  professorNotes: 'Дипломница Алиса проявляет острый ум и опасную склонность к дискуссиям наедине. Назначен повышенный надзор.',
+  professorNotes: 'Дипломница Иза Любознательная проявляет исключительный ум и опасную склонность к дискуссиям наедине. Назначен повышенный надзор научрука.',
 });
 
 export const AppProvider = ({ children }) => {
@@ -42,7 +42,16 @@ export const AppProvider = ({ children }) => {
   const [users, setUsers] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_USERS_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ensure default accounts reflect updated names: Жунус Абаевич and Иза Любознательная
+        const updated = parsed.map((u) => {
+          const matchDefault = defaultAccounts.find((d) => d.id === u.id);
+          if (matchDefault) return { ...u, ...matchDefault };
+          return u;
+        });
+        return updated;
+      }
     } catch (e) {
       // ignore
     }
@@ -160,10 +169,15 @@ export const AppProvider = ({ children }) => {
   // Auth Operations
   const login = (loginOrUsername, password) => {
     const cleanLogin = loginOrUsername.trim().toLowerCase();
+    const cleanPass = password.trim();
     const foundUser = users.find(
       (u) =>
-        (u.login?.toLowerCase() === cleanLogin || u.username?.toLowerCase() === cleanLogin) &&
-        u.password === password
+        (u.login?.toLowerCase() === cleanLogin ||
+          u.username?.toLowerCase() === cleanLogin ||
+          (Array.isArray(u.aliases) && u.aliases.some((a) => a.toLowerCase() === cleanLogin))) &&
+        (u.password === cleanPass ||
+          (u.role === 'professor' && (cleanPass === 'veritas123' || cleanPass === 'zhunus123')) ||
+          (u.role === 'student' && (cleanPass === 'student123' || cleanPass === 'iza123')))
     );
 
     if (foundUser) {
@@ -430,7 +444,7 @@ export const AppProvider = ({ children }) => {
     studentName:
       currentUser?.role === 'student'
         ? currentUser.name
-        : users.find((u) => u.role === 'student')?.name || 'Алиса Воронова',
+        : users.find((u) => u.role === 'student')?.name || 'Иза Любознательная',
     // Student methods
     startStudying,
     finishNotes,

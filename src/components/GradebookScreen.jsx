@@ -102,7 +102,7 @@ export const GradebookScreen = () => {
               Научный руководитель:
             </span>
             <span className="font-serif-vintage font-bold text-[#d4af37] truncate block">
-              Проф. В. А. Северов
+              Проф. Жунус Абаевич
             </span>
           </div>
         </div>

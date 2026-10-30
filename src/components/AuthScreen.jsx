@@ -120,7 +120,7 @@ export const AuthScreen = () => {
                   </span>
                 </div>
                 <div className="text-xs font-bold text-[#fffffe] font-serif-vintage truncate">
-                  {profAccount?.name || 'Проф. Северов'}
+                  {profAccount?.name || 'Жунус Абаевич'}
                 </div>
                 <div className="text-[10px] text-[#a7a9be] italic font-serif-vintage truncate mt-0.5">
                   Взгляд преподавателя
@@ -142,7 +142,7 @@ export const AuthScreen = () => {
                   </span>
                 </div>
                 <div className="text-xs font-bold text-[#fffffe] font-serif-vintage truncate">
-                  {studAccount?.name || 'Алиса Воронова'}
+                  {studAccount?.name || 'Иза Любознательная'}
                 </div>
                 <div className="text-[10px] text-[#a7a9be] italic font-serif-vintage truncate mt-0.5">
                   Сдача конспекта и сессии
@@ -204,7 +204,7 @@ export const AuthScreen = () => {
                     type="text"
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
-                    placeholder="student@academy.edu или alisa"
+                    placeholder="zhunus, iza или email"
                     className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>

@@ -76,7 +76,7 @@ export const ProfessorGradebookScreen = () => {
             ЗАЧЕТНАЯ КНИЖКА № 7024/А
           </h2>
           <p className="text-[10px] text-[#a7a9be] font-serif-vintage italic">
-            Дипломница: <strong className="text-[#fffffe]">{studentName}</strong> • Научрук: Проф. В. А. Северов
+            Дипломница: <strong className="text-[#fffffe]">{studentName}</strong> • Научрук: Проф. Жунус Абаевич
           </p>
         </div>
 

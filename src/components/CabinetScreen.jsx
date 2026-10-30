@@ -297,10 +297,10 @@ export const CabinetScreen = () => {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
                   <div className="w-6 h-6 rounded-full bg-[#722f37] flex items-center justify-center text-[10px] font-bold text-[#f3e29f]">
-                    ПВ
+                    ЖА
                   </div>
                   <span className="text-xs font-bold text-[#fffffe] font-display">
-                    Профессор В. А. Северов
+                    Профессор Жунус Абаевич
                   </span>
                 </div>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-black/40 text-[#a7a9be] border border-[#2e2b38]">
