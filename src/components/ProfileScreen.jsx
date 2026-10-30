@@ -8,40 +8,31 @@ import {
   VolumeX,
   Vibrate,
   RotateCcw,
-  Shield,
+  LogOut,
   HelpCircle,
-  ExternalLink,
   Check,
   Feather,
+  ArrowLeftRight,
+  Shield,
 } from 'lucide-react';
 
 export const ProfileScreen = () => {
   const {
-    studentName,
-    setStudentName,
+    currentUser,
+    users,
+    switchAccountById,
+    logout,
     soundEnabled,
     setSoundEnabled,
     hapticEnabled,
     setHapticEnabled,
     resetAllProgress,
     academicStatus,
-    score,
-    penalties,
   } = useApp();
 
-  const [nameInput, setNameInput] = useState(studentName);
-  const [isSaved, setIsSaved] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  const handleSaveName = (e) => {
-    e.preventDefault();
-    if (!nameInput.trim()) return;
-    setStudentName(nameInput.trim());
-    triggerHaptic('success', hapticEnabled);
-    sound.playStamp();
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
-  };
+  const isProfessor = currentUser?.role === 'professor';
 
   const handleToggleSound = () => {
     const next = !soundEnabled;
@@ -63,47 +54,90 @@ export const ProfileScreen = () => {
 
   return (
     <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-4 max-w-lg mx-auto w-full pb-8">
-      {/* Dossier Header Card */}
-      <div className="bg-[#1c1b22] border border-[#2e2b38] rounded-2xl p-4 shadow-lg space-y-3">
+      {/* Current Active Account Card */}
+      <div className="bg-[#1c1b22] border-2 border-[#d4af37]/50 rounded-2xl p-4 shadow-xl space-y-3">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#722f37] to-[#4a1820] border-2 border-[#d4af37]/60 flex items-center justify-center text-[#d4af37] shadow-md shrink-0">
-            <Feather className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#722f37] to-[#4a1820] border-2 border-[#d4af37] flex items-center justify-center text-xl shadow-md shrink-0">
+            {currentUser?.avatar || (isProfessor ? '🏛️' : '🥀')}
           </div>
           <div className="min-w-0 flex-1">
             <span className="text-[10px] uppercase font-display tracking-widest text-[#d4af37]">
-              ЛИЧНОЕ ДЕЛО ДИПЛОМНИЦЫ
+              {isProfessor ? 'ЛИЧНОЕ ДЕЛО НАУЧРУКА' : 'ЛИЧНОЕ ДЕЛО ДИПЛОМНИЦЫ'}
             </span>
             <h2 className="text-base font-bold text-[#fffffe] font-serif-vintage truncate">
-              {studentName}
+              {currentUser?.name}
             </h2>
             <p className="text-xs text-[#a7a9be] font-serif-vintage italic truncate">
-              Статус: {academicStatus.title}
+              {currentUser?.title}
             </p>
           </div>
         </div>
 
-        {/* Change Name Form */}
-        <form onSubmit={handleSaveName} className="space-y-1.5 pt-1">
-          <label className="text-[10px] uppercase text-[#a7a9be] font-semibold tracking-wider block">
-            Имя студентки для обращений профессора:
-          </label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              placeholder="Введите ваше имя"
-              maxLength={24}
-              className="flex-1 px-3 py-2 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
-            />
-            <button
-              type="submit"
-              className="px-3.5 py-2 rounded-xl bg-[#722f37] hover:bg-[#8e3b45] text-[#fffffe] text-xs font-semibold border border-[#d4af37]/40 active:scale-95 transition-all flex items-center justify-center space-x-1"
-            >
-              {isSaved ? <Check className="w-4 h-4 text-emerald-400" /> : <span>Записать</span>}
-            </button>
+        <div className="bg-[#16161a] p-3 rounded-xl border border-[#2e2b38] space-y-1 text-xs">
+          <div className="flex justify-between text-[#a7a9be]">
+            <span>Логин / Email:</span>
+            <span className="text-[#fffffe] font-mono">{currentUser?.login}</span>
           </div>
-        </form>
+          <div className="flex justify-between text-[#a7a9be]">
+            <span>Кабинет / Аудитория:</span>
+            <span className="text-[#d4af37]">{currentUser?.cabinet || 'Кафедра'}</span>
+          </div>
+        </div>
+
+        {/* Logout / Switch Account Button */}
+        <button
+          onClick={logout}
+          className="w-full py-2.5 px-3 rounded-xl bg-[#24222e] hover:bg-[#2e2b38] text-[#c5c6d0] hover:text-[#fffffe] text-xs font-semibold border border-[#3a3546] active:scale-95 transition-all flex items-center justify-center space-x-1.5"
+        >
+          <LogOut className="w-3.5 h-3.5 text-red-400" />
+          <span>Сменить аккаунт / Выйти в окно регистрации</span>
+        </button>
+      </div>
+
+      {/* Switch between preloaded accounts */}
+      <div className="bg-[#1c1b22] border border-[#2e2b38] rounded-2xl p-4 shadow-md space-y-2.5">
+        <h3 className="text-xs uppercase font-display tracking-wider text-[#d4af37] flex items-center space-x-1.5">
+          <ArrowLeftRight className="w-3.5 h-3.5" />
+          <span>БЫСТРОЕ ПЕРЕКЛЮЧЕНИЕ РОЛЕЙ</span>
+        </h3>
+        <p className="text-xs text-[#a7a9be] font-serif-vintage italic">
+          Переключайтесь между взглядом научрука и дипломницы для тестирования:
+        </p>
+
+        <div className="space-y-2 pt-1">
+          {users.map((u) => {
+            const isCurrent = currentUser?.id === u.id;
+            return (
+              <button
+                key={u.id}
+                onClick={() => switchAccountById(u.id)}
+                className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between text-xs transition-all active:scale-[0.98] ${
+                  isCurrent
+                    ? 'bg-[#722f37]/40 border-[#d4af37] shadow-sm'
+                    : 'bg-[#16161a] border-[#2e2b38] hover:border-[#3a3546]'
+                }`}
+              >
+                <div className="flex items-center space-x-2.5 truncate">
+                  <span className="text-sm">{u.avatar || '👤'}</span>
+                  <div className="truncate">
+                    <span className="font-bold text-[#fffffe] block truncate font-serif-vintage">
+                      {u.name}
+                    </span>
+                    <span className="text-[10px] text-[#a7a9be] italic block truncate">
+                      {u.role === 'professor' ? 'Преподаватель' : 'Студентка'} • {u.login}
+                    </span>
+                  </div>
+                </div>
+
+                {isCurrent && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#d4af37]/20 text-[#f3e29f] border border-[#d4af37]/40 shrink-0">
+                    Активен
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Settings Options */}
@@ -175,25 +209,14 @@ export const ProfileScreen = () => {
         </div>
       </div>
 
-      {/* About Quest & Rules */}
-      <div className="bg-[#1c1b22] border border-[#2e2b38] rounded-2xl p-4 shadow-md space-y-2">
-        <h3 className="text-xs uppercase font-display tracking-wider text-[#d4af37] flex items-center space-x-1.5">
-          <HelpCircle className="w-3.5 h-3.5" />
-          <span>О КВЕСТЕ И ПРАВИЛАХ</span>
-        </h3>
-        <p className="text-xs text-[#a7a9be] font-serif-vintage italic leading-relaxed">
-          «Дневник преподавателя и его студенточки» — это детерминированный текстовый квест в жанре Dark Academia. Все ветвления сценария зависят исключительно от ваших ответов. Чем выше балл прилежания, тем более сокровенные награды открываются в вашей зачетной книжке.
-        </p>
-      </div>
-
       {/* Danger Zone: Reset Progress */}
       <div className="bg-[#1c1b22] border border-red-950/60 rounded-2xl p-4 shadow-md space-y-3">
         <h3 className="text-xs uppercase font-display tracking-wider text-red-400 flex items-center space-x-1.5">
           <RotateCcw className="w-3.5 h-3.5" />
-          <span>СБРОС ПРОГРЕССА</span>
+          <span>СБРОС ПРОГРЕССА СЕССИИ</span>
         </h3>
         <p className="text-xs text-[#8f90a6]">
-          Очистить все набранные баллы, сданные модули и востребованные награды.
+          Очистить все баллы, сданные модули и востребованные награды.
         </p>
 
         {!showResetConfirm ? (
@@ -206,7 +229,7 @@ export const ProfileScreen = () => {
         ) : (
           <div className="p-3 rounded-xl bg-red-950/40 border border-red-600/60 space-y-2">
             <span className="text-xs text-red-200 font-bold block text-center">
-              Вы уверены? Это сотрет все записи в зачетке!
+              Вы уверены? Это сотрет все записи в табеле!
             </span>
             <div className="flex gap-2">
               <button

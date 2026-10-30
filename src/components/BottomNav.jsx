@@ -3,37 +3,58 @@ import { useApp } from '../context/AppContext';
 import { BookOpen, Landmark, GraduationCap, Settings } from 'lucide-react';
 
 export const BottomNav = () => {
-  const { activeTab, setActiveTab, modulesState, score, claimedRewards, rewardsData } = useApp();
+  const {
+    currentUser,
+    activeTab,
+    setActiveTab,
+    modulesState,
+    score,
+    claimedRewards,
+    approvedRewards,
+    rewardsData,
+  } = useApp();
+
+  const isProfessor = currentUser?.role === 'professor';
 
   // Check if any module is ready to report
   const hasReadyModule = Object.values(modulesState).some(
     (m) => m.status === 'ready_to_report'
   );
 
-  // Check if any reward can be claimed
+  // Check if any reward can be claimed by student or approved by professor
   const hasUnclaimedReward = rewardsData.some(
     (r) => score >= r.required_score && !claimedRewards.includes(r.id)
+  );
+
+  const hasUnapprovedReward = rewardsData.some(
+    (r) => score >= r.required_score && !approvedRewards.includes(r.id)
   );
 
   const navItems = [
     {
       id: 'journal',
-      label: 'Журнал',
+      label: isProfessor ? 'Ведомость' : 'Журнал',
       icon: BookOpen,
       badge: null,
     },
     {
       id: 'cabinet',
-      label: 'Кабинет',
+      label: isProfessor ? 'Экзамен' : 'Кабинет',
       icon: Landmark,
-      badge: hasReadyModule ? 'готов' : null,
+      badge: hasReadyModule ? (isProfessor ? 'вызов' : 'готов') : null,
       badgeColor: 'bg-[#722f37] text-[#f3e29f]',
     },
     {
       id: 'gradebook',
-      label: 'Зачетка',
+      label: isProfessor ? 'Резолюции' : 'Зачетка',
       icon: GraduationCap,
-      badge: hasUnclaimedReward ? '★' : null,
+      badge: isProfessor
+        ? hasUnapprovedReward
+          ? '★'
+          : null
+        : hasUnclaimedReward
+        ? '★'
+        : null,
       badgeColor: 'bg-[#d4af37] text-[#16161a]',
     },
     {
@@ -61,13 +82,16 @@ export const BottomNav = () => {
                   : 'text-[#8f90a6] hover:text-[#c5c6d0]'
               }`}
             >
-              {/* Active Tab Glow */}
               {isActive && (
                 <span className="absolute -top-1 w-8 h-0.5 bg-[#d4af37] rounded-full shadow-[0_0_8px_#d4af37]" />
               )}
 
               <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110 text-[#d4af37]' : ''}`} />
+                <Icon
+                  className={`w-5 h-5 transition-transform ${
+                    isActive ? 'scale-110 text-[#d4af37]' : ''
+                  }`}
+                />
                 {item.badge && (
                   <span
                     className={`absolute -top-1.5 -right-3 text-[9px] font-bold px-1.5 py-0.2 rounded-full shadow-sm animate-pulse ${item.badgeColor}`}

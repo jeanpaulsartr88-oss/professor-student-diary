@@ -1,0 +1,28 @@
+[
+  {
+    "id": "user_prof_1",
+    "login": "professor@academy.edu",
+    "username": "severov",
+    "password": "veritas123",
+    "name": "Виктор Александрович Северов",
+    "shortName": "Проф. В. А. Северов",
+    "role": "professor",
+    "title": "Доктор наук, Заведующий кафедрой прикладного повиновения",
+    "department": "Кафедра прикладного повиновения и академических искушений",
+    "cabinet": "Кабинет № 305 (закрыт изнутри)",
+    "avatar": "🏛️"
+  },
+  {
+    "id": "user_stud_1",
+    "login": "student@academy.edu",
+    "username": "alisa",
+    "password": "student123",
+    "name": "Алиса Воронова",
+    "shortName": "Студентка Алиса",
+    "role": "student",
+    "title": "Студентка 4 курса, дипломница профессора Северова",
+    "department": "Кафедра прикладного повиновения и академических искушений",
+    "cabinet": "Аудитория 402",
+    "avatar": "🥀"
+  }
+]

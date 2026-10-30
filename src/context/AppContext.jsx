@@ -1,12 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import scenarioData from '../data/scenario.json';
 import rewardsData from '../data/rewards.json';
+import defaultAccounts from '../data/accounts.json';
 import { getTelegramUser, initTelegramApp, triggerHaptic } from '../utils/telegram';
 import { sound } from '../utils/sound';
 
 const AppContext = createContext(null);
 
-const STORAGE_KEY = 'academic_quest_state_v1';
+const STORAGE_USERS_KEY = 'academic_quest_users_v2';
+const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v2';
+const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v2';
+const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v2';
 
 const getInitialModulesState = () => {
   const state = {};
@@ -22,89 +26,221 @@ const getInitialModulesState = () => {
   return state;
 };
 
+const getInitialStudentData = () => ({
+  score: 15,
+  penalties: 1,
+  modulesState: getInitialModulesState(),
+  claimedRewards: [],
+  approvedRewards: ['reward_1'], // Professor already signed first perk as a courtesy
+  professorNotes: 'Дипломница Алиса проявляет острый ум и опасную склонность к дискуссиям наедине. Назначен повышенный надзор.',
+});
+
 export const AppProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Auth & Users
+  const [users, setUsers] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_USERS_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      // ignore
+    }
+    return defaultAccounts;
+  });
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_CURRENT_USER_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      // ignore
+    }
+    // Default to student on first visit
+    return defaultAccounts.find((u) => u.role === 'student') || null;
+  });
+
+  // Navigation
   const [activeTab, setActiveTab] = useState('journal'); // 'journal' | 'cabinet' | 'gradebook' | 'profile'
   const [currentModuleId, setCurrentModuleId] = useState('module_1');
-  const [score, setScore] = useState(0);
-  const [penalties, setPenalties] = useState(0);
-  const [modulesState, setModulesState] = useState(getInitialModulesState);
-  const [claimedRewards, setClaimedRewards] = useState([]);
-  const [studentName, setStudentName] = useState('Студентка');
+
+  // Shared Student Academic Progress
+  const [studentData, setStudentData] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_STUDENT_DATA_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      // ignore
+    }
+    return getInitialStudentData();
+  });
+
+  // Settings
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [hapticEnabled, setHapticEnabled] = useState(true);
   const [selectedStudyModule, setSelectedStudyModule] = useState(null);
 
-  // Initialize Telegram & load from LocalStorage
+  // Initialize Telegram
   useEffect(() => {
     initTelegramApp();
-    const tgUser = getTelegramUser();
-    let initialName = tgUser.firstName || 'Студентка';
 
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (typeof parsed.score === 'number') setScore(parsed.score);
-        if (typeof parsed.penalties === 'number') setPenalties(parsed.penalties);
-        if (parsed.modulesState) setModulesState(parsed.modulesState);
-        if (Array.isArray(parsed.claimedRewards)) setClaimedRewards(parsed.claimedRewards);
-        if (parsed.studentName) initialName = parsed.studentName;
+      const savedSettings = localStorage.getItem(STORAGE_SETTINGS_KEY);
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
         if (typeof parsed.soundEnabled === 'boolean') {
           setSoundEnabled(parsed.soundEnabled);
           sound.enabled = parsed.soundEnabled;
         }
-        if (typeof parsed.hapticEnabled === 'boolean') setHapticEnabled(parsed.hapticEnabled);
-        if (parsed.currentModuleId) setCurrentModuleId(parsed.currentModuleId);
+        if (typeof parsed.hapticEnabled === 'boolean') {
+          setHapticEnabled(parsed.hapticEnabled);
+        }
       }
     } catch (e) {
-      console.error('Failed to load saved state from localStorage:', e);
+      // ignore
     }
 
-    setStudentName(initialName);
     setIsLoaded(true);
   }, []);
 
-  // Save changes to LocalStorage
+  // Save Users
   useEffect(() => {
     if (!isLoaded) return;
     try {
-      const stateToSave = {
-        score,
-        penalties,
-        modulesState,
-        claimedRewards,
-        studentName,
-        soundEnabled,
-        hapticEnabled,
-        currentModuleId,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
     } catch (e) {
-      console.error('Failed to save state to localStorage:', e);
+      console.error('Failed to save users:', e);
     }
-  }, [score, penalties, modulesState, claimedRewards, studentName, soundEnabled, hapticEnabled, currentModuleId, isLoaded]);
+  }, [users, isLoaded]);
 
-  // Update sound controller when toggle changes
+  // Save Current User
   useEffect(() => {
-    sound.enabled = soundEnabled;
-  }, [soundEnabled]);
+    if (!isLoaded) return;
+    try {
+      if (currentUser) {
+        localStorage.setItem(STORAGE_CURRENT_USER_KEY, JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem(STORAGE_CURRENT_USER_KEY);
+      }
+    } catch (e) {
+      console.error('Failed to save current user:', e);
+    }
+  }, [currentUser, isLoaded]);
 
-  // Actions
+  // Save Student Progress
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      localStorage.setItem(STORAGE_STUDENT_DATA_KEY, JSON.stringify(studentData));
+    } catch (e) {
+      console.error('Failed to save student data:', e);
+    }
+  }, [studentData, isLoaded]);
+
+  // Save Settings
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      localStorage.setItem(
+        STORAGE_SETTINGS_KEY,
+        JSON.stringify({ soundEnabled, hapticEnabled })
+      );
+    } catch (e) {
+      console.error('Failed to save settings:', e);
+    }
+  }, [soundEnabled, hapticEnabled, isLoaded]);
+
+  // Tab switcher
   const switchTab = (tab) => {
     triggerHaptic('selection', hapticEnabled);
     sound.playPageTurn();
     setActiveTab(tab);
   };
 
+  // Auth Operations
+  const login = (loginOrUsername, password) => {
+    const cleanLogin = loginOrUsername.trim().toLowerCase();
+    const foundUser = users.find(
+      (u) =>
+        (u.login?.toLowerCase() === cleanLogin || u.username?.toLowerCase() === cleanLogin) &&
+        u.password === password
+    );
+
+    if (foundUser) {
+      setCurrentUser(foundUser);
+      triggerHaptic('success', hapticEnabled);
+      sound.playStamp();
+      setActiveTab('journal');
+      return { success: true, user: foundUser };
+    }
+    triggerHaptic('error', hapticEnabled);
+    return { success: false, error: 'Неверный логин или академический пароль' };
+  };
+
+  const register = ({ name, login, password, role }) => {
+    const cleanLogin = login.trim().toLowerCase();
+    const existing = users.find(
+      (u) => u.login?.toLowerCase() === cleanLogin || u.username?.toLowerCase() === cleanLogin
+    );
+
+    if (existing) {
+      triggerHaptic('error', hapticEnabled);
+      return { success: false, error: 'Пользователь с таким логином уже числится на кафедре' };
+    }
+
+    const newUser = {
+      id: `user_${Date.now()}`,
+      login: cleanLogin,
+      username: cleanLogin.split('@')[0],
+      password,
+      name: name.trim(),
+      shortName: role === 'professor' ? `Проф. ${name.trim()}` : name.trim(),
+      role: role || 'student',
+      title:
+        role === 'professor'
+          ? 'Преподаватель кафедры прикладного повиновения'
+          : 'Студентка, дипломница кафедры',
+      department: 'Кафедра прикладного повиновения и академических искушений',
+      cabinet: role === 'professor' ? 'Кабинет № 305' : 'Аудитория 402',
+      avatar: role === 'professor' ? '🏛️' : '🥀',
+    };
+
+    setUsers((prev) => [...prev, newUser]);
+    setCurrentUser(newUser);
+    triggerHaptic('success', hapticEnabled);
+    sound.playStamp();
+    setActiveTab('journal');
+    return { success: true, user: newUser };
+  };
+
+  const logout = () => {
+    triggerHaptic('light', hapticEnabled);
+    sound.playClick();
+    setCurrentUser(null);
+  };
+
+  const switchAccountById = (id) => {
+    const target = users.find((u) => u.id === id);
+    if (target) {
+      setCurrentUser(target);
+      triggerHaptic('success', hapticEnabled);
+      sound.playStamp();
+      setActiveTab('journal');
+    }
+  };
+
+  // Student Actions
   const startStudying = (moduleId) => {
     triggerHaptic('light', hapticEnabled);
     sound.playClick();
-    setModulesState((prev) => ({
+    setStudentData((prev) => ({
       ...prev,
-      [moduleId]: {
-        ...prev[moduleId],
-        status: 'learning',
+      modulesState: {
+        ...prev.modulesState,
+        [moduleId]: {
+          ...prev.modulesState[moduleId],
+          status: 'learning',
+        },
       },
     }));
   };
@@ -112,11 +248,14 @@ export const AppProvider = ({ children }) => {
   const finishNotes = (moduleId) => {
     triggerHaptic('success', hapticEnabled);
     sound.playStamp();
-    setModulesState((prev) => ({
+    setStudentData((prev) => ({
       ...prev,
-      [moduleId]: {
-        ...prev[moduleId],
-        status: 'ready_to_report',
+      modulesState: {
+        ...prev.modulesState,
+        [moduleId]: {
+          ...prev.modulesState[moduleId],
+          status: 'ready_to_report',
+        },
       },
     }));
   };
@@ -132,20 +271,18 @@ export const AppProvider = ({ children }) => {
     triggerHaptic('success', hapticEnabled);
     sound.playStamp();
 
-    setScore((prev) => Math.min(100, Math.max(0, prev + (scoreBonus || 0))));
-    if (penaltiesAwarded) {
-      setPenalties((prev) => prev + penaltiesAwarded);
-    }
+    setStudentData((prev) => {
+      const nextScore = Math.min(100, Math.max(0, prev.score + (scoreBonus || 0)));
+      const nextPenalties = prev.penalties + (penaltiesAwarded || 0);
 
-    setModulesState((prev) => {
-      const nextState = {
-        ...prev,
+      const nextModulesState = {
+        ...prev.modulesState,
         [moduleId]: {
-          ...prev[moduleId],
+          ...prev.modulesState[moduleId],
           status: 'completed',
           grade,
           verdict,
-          scoreEarned: (prev[moduleId]?.scoreEarned || 0) + (scoreBonus || 0),
+          scoreEarned: (prev.modulesState[moduleId]?.scoreEarned || 0) + (scoreBonus || 0),
           completedAt: new Date().toLocaleDateString('ru-RU', {
             day: 'numeric',
             month: 'long',
@@ -155,46 +292,93 @@ export const AppProvider = ({ children }) => {
         },
       };
 
-      // Unlock next module if available and not yet unlocked
-      if (nextModuleId && nextState[nextModuleId]) {
-        if (nextState[nextModuleId].status === 'not_started') {
-          nextState[nextModuleId] = {
-            ...nextState[nextModuleId],
+      if (nextModuleId && nextModulesState[nextModuleId]) {
+        if (nextModulesState[nextModuleId].status === 'not_started') {
+          nextModulesState[nextModuleId] = {
+            ...nextModulesState[nextModuleId],
             status: 'learning',
           };
         }
       }
 
-      return nextState;
+      return {
+        ...prev,
+        score: nextScore,
+        penalties: nextPenalties,
+        modulesState: nextModulesState,
+      };
     });
   };
 
   const claimReward = (rewardId) => {
-    if (claimedRewards.includes(rewardId)) return;
+    if (studentData.claimedRewards.includes(rewardId)) return;
     triggerHaptic('success', hapticEnabled);
     sound.playChime();
-    setClaimedRewards((prev) => [...prev, rewardId]);
+    setStudentData((prev) => ({
+      ...prev,
+      claimedRewards: [...prev.claimedRewards, rewardId],
+    }));
+  };
+
+  // Professor Actions
+  const professorApproveReward = (rewardId) => {
+    triggerHaptic('success', hapticEnabled);
+    sound.playStamp();
+    setStudentData((prev) => {
+      const isAlready = prev.approvedRewards.includes(rewardId);
+      const nextApproved = isAlready
+        ? prev.approvedRewards.filter((id) => id !== rewardId)
+        : [...prev.approvedRewards, rewardId];
+      return {
+        ...prev,
+        approvedRewards: nextApproved,
+      };
+    });
+  };
+
+  const professorChangePenalties = (delta) => {
+    triggerHaptic(delta > 0 ? 'warning' : 'success', hapticEnabled);
+    sound.playStamp();
+    setStudentData((prev) => ({
+      ...prev,
+      penalties: Math.max(0, prev.penalties + delta),
+    }));
+  };
+
+  const professorChangeScore = (delta) => {
+    triggerHaptic('success', hapticEnabled);
+    sound.playClick();
+    setStudentData((prev) => ({
+      ...prev,
+      score: Math.min(100, Math.max(0, prev.score + delta)),
+    }));
+  };
+
+  const professorUpdateNotes = (notes) => {
+    triggerHaptic('success', hapticEnabled);
+    sound.playStamp();
+    setStudentData((prev) => ({
+      ...prev,
+      professorNotes: notes,
+    }));
   };
 
   const resetAllProgress = () => {
     triggerHaptic('warning', hapticEnabled);
     sound.playStamp();
-    setScore(0);
-    setPenalties(0);
-    setModulesState(getInitialModulesState());
-    setClaimedRewards([]);
+    setStudentData(getInitialStudentData());
     setCurrentModuleId('module_1');
     setActiveTab('journal');
-    localStorage.removeItem(STORAGE_KEY);
   };
 
-  // Academic status calculation
+  // Academic status calculation for the student
+  const score = studentData.score;
   let academicStatus = {
     title: 'Отчислена на ковер к профессору',
     level: 'danger',
     color: 'text-red-400',
     badge: 'На грани отчисления',
-    description: 'Вам срочно требуется приватная аудиенция в кабинете научного руководителя.',
+    description: 'Срочно требуется приватная аудиенция в кабинете научного руководителя.',
   };
 
   if (score >= 90) {
@@ -211,7 +395,7 @@ export const AppProvider = ({ children }) => {
       level: 'high',
       color: 'text-amber-300',
       badge: 'Высшая лига',
-      description: 'Профессор доверяет вам ключевые материалы и закрытые заседания.',
+      description: 'Профессор доверяет вам ключевые закрытые материалы и заседания.',
     };
   } else if (score >= 30) {
     academicStatus = {
@@ -225,17 +409,40 @@ export const AppProvider = ({ children }) => {
 
   const value = {
     isLoaded,
+    users,
+    currentUser,
+    login,
+    register,
+    logout,
+    switchAccountById,
     activeTab,
     setActiveTab: switchTab,
     currentModuleId,
     setCurrentModuleId,
-    score,
-    setScore,
-    penalties,
-    modulesState,
-    claimedRewards,
-    studentName,
-    setStudentName,
+    // Shared Student data
+    studentData,
+    score: studentData.score,
+    penalties: studentData.penalties,
+    modulesState: studentData.modulesState,
+    claimedRewards: studentData.claimedRewards,
+    approvedRewards: studentData.approvedRewards,
+    professorNotes: studentData.professorNotes,
+    studentName:
+      currentUser?.role === 'student'
+        ? currentUser.name
+        : users.find((u) => u.role === 'student')?.name || 'Алиса Воронова',
+    // Student methods
+    startStudying,
+    finishNotes,
+    openCabinetWithModule,
+    completeModule,
+    claimReward,
+    // Professor methods
+    professorApproveReward,
+    professorChangePenalties,
+    professorChangeScore,
+    professorUpdateNotes,
+    // Settings
     soundEnabled,
     setSoundEnabled,
     hapticEnabled,
@@ -243,14 +450,10 @@ export const AppProvider = ({ children }) => {
     academicStatus,
     selectedStudyModule,
     setSelectedStudyModule,
-    startStudying,
-    finishNotes,
-    openCabinetWithModule,
-    completeModule,
-    claimReward,
     resetAllProgress,
     scenarioData,
     rewardsData,
+    defaultAccounts,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

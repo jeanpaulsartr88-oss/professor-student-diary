@@ -2,14 +2,25 @@ import React, { useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { Header } from './components/Header';
 import { BottomNav } from './components/BottomNav';
+import { AuthScreen } from './components/AuthScreen';
 import { JournalScreen } from './components/JournalScreen';
 import { CabinetScreen } from './components/CabinetScreen';
 import { GradebookScreen } from './components/GradebookScreen';
+import { ProfessorJournalScreen } from './components/ProfessorJournalScreen';
+import { ProfessorCabinetScreen } from './components/ProfessorCabinetScreen';
+import { ProfessorGradebookScreen } from './components/ProfessorGradebookScreen';
 import { ProfileScreen } from './components/ProfileScreen';
 import { setupBackButton, hideBackButton } from './utils/telegram';
 
 const MainLayout = () => {
-  const { activeTab, setActiveTab } = useApp();
+  const { currentUser, activeTab, setActiveTab } = useApp();
+
+  // If user is not authenticated, show Auth / Registration screen
+  if (!currentUser) {
+    return <AuthScreen />;
+  }
+
+  const isProfessor = currentUser.role === 'professor';
 
   // Telegram BackButton integration
   useEffect(() => {
@@ -23,17 +34,32 @@ const MainLayout = () => {
   }, [activeTab, setActiveTab]);
 
   const renderActiveScreen = () => {
-    switch (activeTab) {
-      case 'journal':
-        return <JournalScreen />;
-      case 'cabinet':
-        return <CabinetScreen />;
-      case 'gradebook':
-        return <GradebookScreen />;
-      case 'profile':
-        return <ProfileScreen />;
-      default:
-        return <JournalScreen />;
+    if (isProfessor) {
+      switch (activeTab) {
+        case 'journal':
+          return <ProfessorJournalScreen />;
+        case 'cabinet':
+          return <ProfessorCabinetScreen />;
+        case 'gradebook':
+          return <ProfessorGradebookScreen />;
+        case 'profile':
+          return <ProfileScreen />;
+        default:
+          return <ProfessorJournalScreen />;
+      }
+    } else {
+      switch (activeTab) {
+        case 'journal':
+          return <JournalScreen />;
+        case 'cabinet':
+          return <CabinetScreen />;
+        case 'gradebook':
+          return <GradebookScreen />;
+        case 'profile':
+          return <ProfileScreen />;
+        default:
+          return <JournalScreen />;
+      }
     }
   };
 
