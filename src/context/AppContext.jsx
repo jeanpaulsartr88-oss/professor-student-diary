@@ -7,11 +7,11 @@ import { sound } from '../utils/sound';
 
 const AppContext = createContext(null);
 
-const STORAGE_USERS_KEY = 'academic_quest_users_v2';
-const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v2';
-const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v4';
-const STORAGE_MODULES_KEY = 'academic_quest_modules_v4';
-const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v2';
+const STORAGE_USERS_KEY = 'academic_quest_users_v5';
+const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v5';
+const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v5';
+const STORAGE_MODULES_KEY = 'academic_quest_modules_v5';
+const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v5';
 
 const getInitialModulesState = (modules) => {
   const state = {};

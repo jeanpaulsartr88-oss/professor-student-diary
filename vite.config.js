@@ -9,4 +9,14 @@ export default defineConfig({
     tailwindcss(),
   ],
   base: './', // Essential for GitHub Pages static deployment
+  build: {
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name]-v5-[hash].js`,
+        chunkFileNames: `assets/[name]-v5-[hash].js`,
+        assetFileNames: `assets/[name]-v5-[hash].[ext]`,
+      },
+    },
+  },
 })
+
