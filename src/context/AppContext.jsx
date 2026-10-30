@@ -105,7 +105,29 @@ export const AppProvider = ({ children }) => {
   const [studentData, setStudentData] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_STUDENT_DATA_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.modulesState?.['module_1']?.status !== 'completed') {
+          parsed.modulesState['module_1'] = {
+            status: 'completed',
+            grade: '100 баллов (Отлично с отличием)',
+            verdict: 'Практический демонстрационный материал принят с наивысшей оценкой кафедры. Студентка Иза проявила безукоризненное прилежание и абсолютное послушание.',
+            scoreEarned: 100,
+            completedAt: 'Вчера, 21:00',
+          };
+          parsed.score = Math.max(100, parsed.score || 0);
+          if (!parsed.modulesState['module_2'] || parsed.modulesState['module_2'].status === 'not_started') {
+            parsed.modulesState['module_2'] = {
+              status: 'ready_to_report',
+              grade: null,
+              verdict: null,
+              scoreEarned: 0,
+              completedAt: null,
+            };
+          }
+        }
+        return parsed;
+      }
     } catch (e) {
       // ignore
     }
