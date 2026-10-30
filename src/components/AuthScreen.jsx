@@ -152,7 +152,7 @@ export const AuthScreen = () => {
                     type="text"
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
-                    placeholder="zhunus или iza"
+                    placeholder="Логин или email"
                     autoComplete="username"
                     className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
                   />
@@ -183,19 +183,6 @@ export const AuthScreen = () => {
                 <span>Войти в личный кабинет</span>
                 <ArrowRight className="w-4 h-4 text-[#f3e29f]" />
               </button>
-
-              {/* Discrete Academic Credentials Footnote */}
-              <div className="pt-2 border-t border-[#2e2b38]/60 text-center">
-                <span className="text-[10px] text-[#717388] block font-serif-vintage italic">
-                  Учетные данные кафедры:
-                </span>
-                <span className="text-[10px] text-[#a7a9be] block font-mono mt-0.5">
-                  Преподаватель: <strong className="text-[#f3e29f]">zhunus</strong> / <strong className="text-[#f3e29f]">veritas123</strong>
-                </span>
-                <span className="text-[10px] text-[#a7a9be] block font-mono mt-0.5">
-                  Студентка: <strong className="text-[#f3e29f]">iza</strong> / <strong className="text-[#f3e29f]">student123</strong>
-                </span>
-              </div>
             </form>
           )}
 
