@@ -15,15 +15,6 @@ export const Header = () => {
 
   const isProfessor = currentUser?.role === 'professor';
 
-  // Toggle to other role quickly
-  const handleQuickSwitchRole = () => {
-    const targetRole = isProfessor ? 'student' : 'professor';
-    const targetUser = users.find((u) => u.role === targetRole);
-    if (targetUser) {
-      switchAccountById(targetUser.id);
-    }
-  };
-
   return (
     <header className="w-full bg-[#16161a]/95 backdrop-blur-md border-b border-[#2e2b38] px-3.5 py-2.5 flex items-center justify-between shrink-0 z-20">
       {/* Title & User Role Information */}
@@ -79,15 +70,6 @@ export const Header = () => {
         >
           <AlertTriangle className="w-3 h-3 text-[#e57373]" />
           <span className="text-xs font-semibold text-[#e57373]">{penalties}</span>
-        </button>
-
-        {/* Quick Switch Role Button */}
-        <button
-          onClick={handleQuickSwitchRole}
-          className="w-8 h-8 rounded-full bg-[#1c1b22] border border-[#3a3546] hover:border-[#d4af37]/60 flex items-center justify-center text-[#d4af37] active:scale-95 transition-all"
-          title={`Переключить на роль: ${isProfessor ? 'Студентка' : 'Преподаватель'}`}
-        >
-          <ArrowLeftRight className="w-3.5 h-3.5" />
         </button>
 
         {/* Profile / Dossier Button */}

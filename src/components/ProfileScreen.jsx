@@ -87,57 +87,11 @@ export const ProfileScreen = () => {
         {/* Logout / Switch Account Button */}
         <button
           onClick={logout}
-          className="w-full py-2.5 px-3 rounded-xl bg-[#24222e] hover:bg-[#2e2b38] text-[#c5c6d0] hover:text-[#fffffe] text-xs font-semibold border border-[#3a3546] active:scale-95 transition-all flex items-center justify-center space-x-1.5"
+          className="w-full py-2.5 px-3 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-200 text-xs font-semibold border border-red-700/50 active:scale-95 transition-all flex items-center justify-center space-x-1.5"
         >
           <LogOut className="w-3.5 h-3.5 text-red-400" />
-          <span>Сменить аккаунт / Выйти в окно регистрации</span>
+          <span>Выйти из системы (к окну авторизации)</span>
         </button>
-      </div>
-
-      {/* Switch between preloaded accounts */}
-      <div className="bg-[#1c1b22] border border-[#2e2b38] rounded-2xl p-4 shadow-md space-y-2.5">
-        <h3 className="text-xs uppercase font-display tracking-wider text-[#d4af37] flex items-center space-x-1.5">
-          <ArrowLeftRight className="w-3.5 h-3.5" />
-          <span>БЫСТРОЕ ПЕРЕКЛЮЧЕНИЕ РОЛЕЙ</span>
-        </h3>
-        <p className="text-xs text-[#a7a9be] font-serif-vintage italic">
-          Переключайтесь между взглядом научрука и дипломницы для тестирования:
-        </p>
-
-        <div className="space-y-2 pt-1">
-          {users.map((u) => {
-            const isCurrent = currentUser?.id === u.id;
-            return (
-              <button
-                key={u.id}
-                onClick={() => switchAccountById(u.id)}
-                className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between text-xs transition-all active:scale-[0.98] ${
-                  isCurrent
-                    ? 'bg-[#722f37]/40 border-[#d4af37] shadow-sm'
-                    : 'bg-[#16161a] border-[#2e2b38] hover:border-[#3a3546]'
-                }`}
-              >
-                <div className="flex items-center space-x-2.5 truncate">
-                  <span className="text-sm">{u.avatar || '👤'}</span>
-                  <div className="truncate">
-                    <span className="font-bold text-[#fffffe] block truncate font-serif-vintage">
-                      {u.name}
-                    </span>
-                    <span className="text-[10px] text-[#a7a9be] italic block truncate">
-                      {u.role === 'professor' ? 'Преподаватель' : 'Студентка'} • {u.login}
-                    </span>
-                  </div>
-                </div>
-
-                {isCurrent && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#d4af37]/20 text-[#f3e29f] border border-[#d4af37]/40 shrink-0">
-                    Активен
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Settings Options */}

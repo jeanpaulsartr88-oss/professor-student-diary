@@ -2,24 +2,21 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import {
   Feather,
-  GraduationCap,
-  Landmark,
-  KeyRound,
-  User,
   Mail,
   Lock,
+  User,
   Sparkles,
   ArrowRight,
   AlertCircle,
-  CheckCircle2,
+  KeyRound,
+  Shield,
 } from 'lucide-react';
 
 export const AuthScreen = () => {
-  const { login, register, defaultAccounts, switchAccountById } = useApp();
+  const { login, register } = useApp();
 
   const [mode, setMode] = useState('login'); // 'login' | 'register'
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
 
   // Login form state
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -35,7 +32,7 @@ export const AuthScreen = () => {
     e.preventDefault();
     setError('');
     if (!loginIdentifier.trim() || !loginPassword) {
-      setError('Заполните логин и академический пароль');
+      setError('Введите логин и академический пароль для входа');
       return;
     }
 
@@ -70,9 +67,6 @@ export const AuthScreen = () => {
     }
   };
 
-  const profAccount = defaultAccounts.find((a) => a.role === 'professor');
-  const studAccount = defaultAccounts.find((a) => a.role === 'student');
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 bg-[#16161a] overflow-y-auto">
       {/* Background vignette & ambient glow */}
@@ -97,58 +91,12 @@ export const AuthScreen = () => {
         </div>
 
         <div className="p-5 space-y-4">
-          {/* Quick 1-Click Demo Profiles */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[10px] text-[#a7a9be] font-display uppercase tracking-wider">
-              <span>Быстрый вход (готовые аккаунты):</span>
-              <span className="text-[#d4af37]">1 клик</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5">
-              {/* Professor Card */}
-              <button
-                type="button"
-                onClick={() => profAccount && switchAccountById(profAccount.id)}
-                className="p-3 rounded-2xl bg-[#16161a] hover:bg-[#251f2b] border border-[#722f37]/70 hover:border-[#d4af37] text-left transition-all active:scale-95 group shadow-md"
-              >
-                <div className="flex items-center space-x-2 mb-1.5">
-                  <div className="w-7 h-7 rounded-full bg-[#722f37] flex items-center justify-center text-xs">
-                    🏛️
-                  </div>
-                  <span className="text-[10px] font-bold text-[#f3e29f] uppercase tracking-wider">
-                    Научрук
-                  </span>
-                </div>
-                <div className="text-xs font-bold text-[#fffffe] font-serif-vintage truncate">
-                  {profAccount?.name || 'Жунус Абаевич'}
-                </div>
-                <div className="text-[10px] text-[#a7a9be] italic font-serif-vintage truncate mt-0.5">
-                  Взгляд преподавателя
-                </div>
-              </button>
-
-              {/* Student Card */}
-              <button
-                type="button"
-                onClick={() => studAccount && switchAccountById(studAccount.id)}
-                className="p-3 rounded-2xl bg-[#16161a] hover:bg-[#22202c] border border-amber-900/50 hover:border-[#d4af37] text-left transition-all active:scale-95 group shadow-md"
-              >
-                <div className="flex items-center space-x-2 mb-1.5">
-                  <div className="w-7 h-7 rounded-full bg-amber-950/60 border border-[#d4af37]/40 flex items-center justify-center text-xs">
-                    🥀
-                  </div>
-                  <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                    Студентка
-                  </span>
-                </div>
-                <div className="text-xs font-bold text-[#fffffe] font-serif-vintage truncate">
-                  {studAccount?.name || 'Иза Любознательная'}
-                </div>
-                <div className="text-[10px] text-[#a7a9be] italic font-serif-vintage truncate mt-0.5">
-                  Сдача конспекта и сессии
-                </div>
-              </button>
-            </div>
+          {/* Security Banner */}
+          <div className="p-2.5 rounded-xl bg-[#16161a] border border-[#2e2b38] flex items-center space-x-2 text-[11px] text-[#a7a9be]">
+            <KeyRound className="w-4 h-4 text-[#d4af37] shrink-0" />
+            <span className="font-serif-vintage italic">
+              Вход строго по персональному логину и паролю кафедры.
+            </span>
           </div>
 
           {/* Mode Switcher Tabs */}
@@ -159,13 +107,13 @@ export const AuthScreen = () => {
                 setMode('login');
                 setError('');
               }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
                 mode === 'login'
                   ? 'bg-[#722f37] text-[#fffffe] shadow-sm'
                   : 'text-[#8f90a6] hover:text-[#c5c6d0]'
               }`}
             >
-              Авторизация
+              Авторизация в системе
             </button>
             <button
               type="button"
@@ -173,7 +121,7 @@ export const AuthScreen = () => {
                 setMode('register');
                 setError('');
               }}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
                 mode === 'register'
                   ? 'bg-[#722f37] text-[#fffffe] shadow-sm'
                   : 'text-[#8f90a6] hover:text-[#c5c6d0]'
@@ -191,9 +139,9 @@ export const AuthScreen = () => {
             </div>
           )}
 
-          {/* Login Form */}
+          {/* Strict Login Form */}
           {mode === 'login' && (
-            <form onSubmit={handleLoginSubmit} className="space-y-3">
+            <form onSubmit={handleLoginSubmit} className="space-y-3.5">
               <div>
                 <label className="text-[10px] uppercase font-semibold text-[#a7a9be] tracking-wider block mb-1">
                   Логин или Email кафедры:
@@ -204,8 +152,9 @@ export const AuthScreen = () => {
                     type="text"
                     value={loginIdentifier}
                     onChange={(e) => setLoginIdentifier(e.target.value)}
-                    placeholder="zhunus, iza или email"
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
+                    placeholder="zhunus или iza"
+                    autoComplete="username"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>
               </div>
@@ -221,18 +170,32 @@ export const AuthScreen = () => {
                     value={loginPassword}
                     onChange={(e) => setLoginPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
+                    autoComplete="current-password"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#722f37] via-[#8e3b45] to-[#4a1820] text-[#fffffe] text-xs font-bold tracking-wider border border-[#d4af37]/60 shadow-lg active:scale-95 transition-all flex items-center justify-center space-x-1.5 pt-2"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#722f37] via-[#8e3b45] to-[#4a1820] text-[#fffffe] text-xs font-bold tracking-wider border border-[#d4af37]/60 shadow-lg active:scale-95 transition-all flex items-center justify-center space-x-1.5"
               >
                 <span>Войти в личный кабинет</span>
                 <ArrowRight className="w-4 h-4 text-[#f3e29f]" />
               </button>
+
+              {/* Discrete Academic Credentials Footnote */}
+              <div className="pt-2 border-t border-[#2e2b38]/60 text-center">
+                <span className="text-[10px] text-[#717388] block font-serif-vintage italic">
+                  Учетные данные кафедры:
+                </span>
+                <span className="text-[10px] text-[#a7a9be] block font-mono mt-0.5">
+                  Преподаватель: <strong className="text-[#f3e29f]">zhunus</strong> / <strong className="text-[#f3e29f]">veritas123</strong>
+                </span>
+                <span className="text-[10px] text-[#a7a9be] block font-mono mt-0.5">
+                  Студентка: <strong className="text-[#f3e29f]">iza</strong> / <strong className="text-[#f3e29f]">student123</strong>
+                </span>
+              </div>
             </form>
           )}
 
@@ -280,7 +243,7 @@ export const AuthScreen = () => {
                     type="text"
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
-                    placeholder={regRole === 'student' ? 'Екатерина Романова' : 'Проф. Аркадий Белов'}
+                    placeholder={regRole === 'student' ? 'Иза Любознательная' : 'Жунус Абаевич'}
                     className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>
@@ -288,7 +251,7 @@ export const AuthScreen = () => {
 
               <div>
                 <label className="text-[10px] uppercase font-semibold text-[#a7a9be] tracking-wider block mb-1">
-                  Логин или Почта:
+                  Логин или Email:
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-[#717388] absolute left-3 top-2.5" />
@@ -296,7 +259,7 @@ export const AuthScreen = () => {
                     type="text"
                     value={regLogin}
                     onChange={(e) => setRegLogin(e.target.value)}
-                    placeholder="ekaterina@academy.edu"
+                    placeholder="user@academy.edu"
                     className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>
@@ -312,7 +275,7 @@ export const AuthScreen = () => {
                     type="password"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    placeholder="Придумайте пароль"
+                    placeholder="••••••••"
                     className="w-full pl-9 pr-3 py-2 rounded-xl bg-[#16161a] border border-[#3a3546] text-xs text-[#fffffe] placeholder-[#717388] focus:outline-none focus:border-[#d4af37]"
                   />
                 </div>
