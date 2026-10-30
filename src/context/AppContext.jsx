@@ -56,8 +56,8 @@ export const AppProvider = ({ children }) => {
     } catch (e) {
       // ignore
     }
-    // Default to student on first visit
-    return defaultAccounts.find((u) => u.role === 'student') || null;
+    // Return null so the Registration / Login screen is displayed first!
+    return null;
   });
 
   // Navigation

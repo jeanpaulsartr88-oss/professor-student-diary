@@ -98,6 +98,15 @@ export const Header = () => {
         >
           <User className="w-4 h-4" />
         </button>
+
+        {/* Logout to Registration / Auth Screen */}
+        <button
+          onClick={logout}
+          className="w-8 h-8 rounded-full bg-[#1c1b22] border border-[#722f37]/70 hover:border-red-500/80 flex items-center justify-center text-red-400 hover:text-red-300 active:scale-95 transition-all"
+          title="Выйти в окно авторизации и регистрации"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+        </button>
       </div>
     </header>
   );
