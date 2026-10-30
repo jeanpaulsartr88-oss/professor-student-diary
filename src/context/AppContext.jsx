@@ -20,7 +20,7 @@ const getInitialModulesState = (modules) => {
       state[mod.id] = {
         status: 'completed',
         grade: '100 баллов (Отлично с отличием)',
-        verdict: 'Практический демонстрационный материал принят с наивысшей оценкой кафедры. Студентка Иза проявила безукоризненное прилежание и абсолютное послушание.',
+        verdict: 'Визуальный трактат студентки Изы признан образцом пластической гармонии. Профессор Жунус Абаевич зафиксировал идеальное следование канонам эстетической субординации и абсолютное доверие научному руководству.',
         scoreEarned: 100,
         completedAt: 'Вчера, 21:00',
       };
@@ -51,7 +51,7 @@ const getInitialStudentData = (modules) => ({
   modulesState: getInitialModulesState(modules),
   claimedRewards: ['reward_1', 'reward_2'],
   approvedRewards: ['reward_1', 'reward_2', 'reward_3'],
-  professorNotes: 'Дипломница Иза Любознательная блестяще выполнила первый практический опрос с демонстрацией материала. Зачет закрыт на 100 баллов. Назначен допуск ко второму модулю.',
+  professorNotes: 'Дипломница Иза Любознательная виртуозно раскрыла тему пластического канона в домашних визуальных штудиях. Первичная аттестация закрыта на высшие 100 баллов кафедры. Назначен допуск ко второму модулю тет-а-тет в аудитории №402.',
 });
 
 export const AppProvider = ({ children }) => {
@@ -107,11 +107,11 @@ export const AppProvider = ({ children }) => {
       const saved = localStorage.getItem(STORAGE_STUDENT_DATA_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.modulesState?.['module_1']?.status !== 'completed') {
+        if (parsed.modulesState?.['module_1']?.status !== 'completed' || parsed.modulesState?.['module_1']?.scoreEarned !== 100) {
           parsed.modulesState['module_1'] = {
             status: 'completed',
             grade: '100 баллов (Отлично с отличием)',
-            verdict: 'Практический демонстрационный материал принят с наивысшей оценкой кафедры. Студентка Иза проявила безукоризненное прилежание и абсолютное послушание.',
+            verdict: 'Визуальный трактат студентки Изы признан образцом пластической гармонии. Профессор Жунус Абаевич зафиксировал идеальное следование канонам эстетической субординации и абсолютное доверие научному руководству.',
             scoreEarned: 100,
             completedAt: 'Вчера, 21:00',
           };
