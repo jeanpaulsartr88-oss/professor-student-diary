@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { AddModuleModal } from './AddModuleModal';
 import {
   Landmark,
   UserCheck,
@@ -14,6 +15,7 @@ import {
   Edit3,
   MapPin,
   FileText,
+  CalendarPlus,
 } from 'lucide-react';
 
 export const ProfessorJournalScreen = () => {
@@ -34,6 +36,7 @@ export const ProfessorJournalScreen = () => {
 
   const [notesInput, setNotesInput] = useState(professorNotes || '');
   const [isSavedNotes, setIsSavedNotes] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleSaveNotes = (e) => {
     e.preventDefault();
@@ -141,6 +144,15 @@ export const ProfessorJournalScreen = () => {
             Очередь на ковер
           </span>
         </div>
+
+        {/* Button to Add New Custom Module */}
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#722f37] to-[#4a1820] hover:from-[#8e3b45] hover:to-[#5c1e28] text-[#fffffe] text-xs font-bold border border-[#d4af37]/60 shadow-md active:scale-95 transition-all flex items-center justify-center space-x-1.5"
+        >
+          <CalendarPlus className="w-4 h-4 text-[#f3e29f]" />
+          <span>+ Назначить новое занятие / модуль кафедры</span>
+        </button>
 
         <div className="space-y-3">
           {scenarioData.modules.map((module) => {
@@ -255,6 +267,12 @@ export const ProfessorJournalScreen = () => {
           </button>
         </form>
       </div>
+
+      {/* Add Module Modal */}
+      <AddModuleModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+      />
     </div>
   );
 };

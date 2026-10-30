@@ -226,7 +226,7 @@ export const ProfessorCabinetScreen = () => {
                 </span>
               </div>
 
-              <p className="text-sm text-[#fffffe] font-serif-vintage leading-relaxed italic">
+              <p className="text-base sm:text-lg text-[#fffffe] font-serif-vintage leading-relaxed italic">
                 «{currentNode.professor_speech}»
               </p>
             </div>
@@ -265,7 +265,7 @@ export const ProfessorCabinetScreen = () => {
                       </span>
                     </div>
 
-                    <p className="text-xs text-[#fffffe] font-serif-vintage leading-snug italic">
+                    <p className="text-sm text-[#fffffe] font-serif-vintage leading-snug italic">
                       «{choice.text}»
                     </p>
                   </button>

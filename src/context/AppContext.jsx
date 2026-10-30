@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import scenarioData from '../data/scenario.json';
+import scenarioDataDefault from '../data/scenario.json';
 import rewardsData from '../data/rewards.json';
 import defaultAccounts from '../data/accounts.json';
 import { getTelegramUser, initTelegramApp, triggerHaptic } from '../utils/telegram';
@@ -9,34 +9,64 @@ const AppContext = createContext(null);
 
 const STORAGE_USERS_KEY = 'academic_quest_users_v2';
 const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v2';
-const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v2';
+const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v4';
+const STORAGE_MODULES_KEY = 'academic_quest_modules_v4';
 const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v2';
 
-const getInitialModulesState = () => {
+const getInitialModulesState = (modules) => {
   const state = {};
-  scenarioData.modules.forEach((mod) => {
-    state[mod.id] = {
-      status: mod.status || 'not_started',
-      grade: null,
-      verdict: null,
-      scoreEarned: 0,
-      completedAt: null,
-    };
+  modules.forEach((mod) => {
+    if (mod.id === 'module_1') {
+      state[mod.id] = {
+        status: 'completed',
+        grade: '100 баллов (Отлично с отличием)',
+        verdict: 'Практический демонстрационный материал принят с наивысшей оценкой кафедры. Студентка Иза проявила безукоризненное прилежание и абсолютное послушание.',
+        scoreEarned: 100,
+        completedAt: 'Вчера, 21:00',
+      };
+    } else if (mod.id === 'module_2') {
+      state[mod.id] = {
+        status: 'ready_to_report',
+        grade: null,
+        verdict: null,
+        scoreEarned: 0,
+        completedAt: null,
+      };
+    } else {
+      state[mod.id] = {
+        status: 'not_started',
+        grade: null,
+        verdict: null,
+        scoreEarned: 0,
+        completedAt: null,
+      };
+    }
   });
   return state;
 };
 
-const getInitialStudentData = () => ({
-  score: 15,
-  penalties: 1,
-  modulesState: getInitialModulesState(),
-  claimedRewards: [],
-  approvedRewards: ['reward_1'], // Professor already signed first perk as a courtesy
-  professorNotes: 'Дипломница Иза Любознательная проявляет исключительный ум и опасную склонность к дискуссиям наедине. Назначен повышенный надзор научрука.',
+const getInitialStudentData = (modules) => ({
+  score: 100,
+  penalties: 0,
+  modulesState: getInitialModulesState(modules),
+  claimedRewards: ['reward_1', 'reward_2'],
+  approvedRewards: ['reward_1', 'reward_2', 'reward_3'],
+  professorNotes: 'Дипломница Иза Любознательная блестяще выполнила первый практический опрос с демонстрацией материала. Зачет закрыт на 100 баллов. Назначен допуск ко второму модулю.',
 });
 
 export const AppProvider = ({ children }) => {
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Modules List (dynamically extensible by Professor)
+  const [modulesList, setModulesList] = useState(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_MODULES_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      // ignore
+    }
+    return scenarioDataDefault.modules;
+  });
 
   // Auth & Users
   const [users, setUsers] = useState(() => {
@@ -44,7 +74,6 @@ export const AppProvider = ({ children }) => {
       const saved = localStorage.getItem(STORAGE_USERS_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Ensure default accounts reflect updated names: Жунус Абаевич and Иза Любознательная
         const updated = parsed.map((u) => {
           const matchDefault = defaultAccounts.find((d) => d.id === u.id);
           if (matchDefault) return { ...u, ...matchDefault };
@@ -65,13 +94,12 @@ export const AppProvider = ({ children }) => {
     } catch (e) {
       // ignore
     }
-    // Return null so the Registration / Login screen is displayed first!
     return null;
   });
 
   // Navigation
-  const [activeTab, setActiveTab] = useState('journal'); // 'journal' | 'cabinet' | 'gradebook' | 'profile'
-  const [currentModuleId, setCurrentModuleId] = useState('module_1');
+  const [activeTab, setActiveTab] = useState('journal');
+  const [currentModuleId, setCurrentModuleId] = useState('module_2');
 
   // Shared Student Academic Progress
   const [studentData, setStudentData] = useState(() => {
@@ -81,7 +109,7 @@ export const AppProvider = ({ children }) => {
     } catch (e) {
       // ignore
     }
-    return getInitialStudentData();
+    return getInitialStudentData(scenarioDataDefault.modules);
   });
 
   // Settings
@@ -111,6 +139,16 @@ export const AppProvider = ({ children }) => {
 
     setIsLoaded(true);
   }, []);
+
+  // Save Modules
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      localStorage.setItem(STORAGE_MODULES_KEY, JSON.stringify(modulesList));
+    } catch (e) {
+      console.error('Failed to save modules:', e);
+    }
+  }, [modulesList, isLoaded]);
 
   // Save Users
   useEffect(() => {
@@ -241,6 +279,91 @@ export const AppProvider = ({ children }) => {
       sound.playStamp();
       setActiveTab('journal');
     }
+  };
+
+  // Dynamically add a new Module by Professor
+  const addNewModule = ({ title, subtitle, room, description, notes, minScore }) => {
+    const newId = `module_${modulesList.length + 1}`;
+    const newOrder = modulesList.length + 1;
+    const newModule = {
+      id: newId,
+      order: newOrder,
+      title: title || `Модуль ${newOrder}: Специальный опрос`,
+      subtitle: subtitle || 'Индивидуальная практическая сдача',
+      room: room || 'Кабинет № 305',
+      description: description || 'Специальное занятие, назначенное профессором Жунусом Абаевичем.',
+      notes: notes || 'Критерии оценивания: полнота выполнения практических указаний научрука, искренность и послушание.',
+      status: 'learning',
+      min_score_required: typeof minScore === 'number' ? minScore : 50,
+      max_score: 25,
+      dialog_tree: {
+        start_node: 'q1',
+        nodes: {
+          q1: {
+            professor_speech: `Студентка Иза, вы явились на занятие №${newOrder}. Я изучил ваши предыдущие материалы. Готовы ли вы ответить перед кафедрой?`,
+            professor_mood: 'Строгий цензор',
+            action_hint: 'Профессор Жунус Абаевич внимательно смотрит на вас поверх очков.',
+            student_choices: [
+              {
+                text: 'Я подготовила всё в точности по вашим указаниям, профессор. Проверьте лично.',
+                type: 'diligent',
+                label: 'Прилежный',
+                next_node: 'end_pass',
+                score_change: 15,
+                penalties_change: 0,
+                haptic: 'success',
+              },
+              {
+                text: 'Надеюсь, мой практический материал произвел на вас должное впечатление...',
+                type: 'flirty',
+                label: 'Дерзкий',
+                next_node: 'end_flirt',
+                score_change: 20,
+                penalties_change: 1,
+                haptic: 'warning',
+              },
+            ],
+          },
+          end_pass: {
+            is_end: true,
+            grade: 'Отлично (Высший балл)',
+            professor_mood: 'Снисходительный ценитель',
+            professor_speech: 'Материал безупречен. Вы в очередной раз подтвердили статус лучшей дипломницы.',
+            verdict: 'Безукоризненная подготовка, чуткое внимание к требованиям профессора.',
+            score_bonus: 10,
+            next_module_id: null,
+          },
+          end_flirt: {
+            is_end: true,
+            grade: 'Зачтено с особым предписанием',
+            professor_mood: 'Опасное сокращение дистанции',
+            professor_speech: 'Ваша смелость заслуживает высшей оценки, но требует строгого индивидуального надзора.',
+            verdict: 'Выдающийся результат с повышенным личным вниманием научрука.',
+            score_bonus: 15,
+            next_module_id: null,
+          },
+        },
+      },
+    };
+
+    setModulesList((prev) => [...prev, newModule]);
+
+    setStudentData((prev) => ({
+      ...prev,
+      modulesState: {
+        ...prev.modulesState,
+        [newId]: {
+          status: 'ready_to_report',
+          grade: null,
+          verdict: null,
+          scoreEarned: 0,
+          completedAt: null,
+        },
+      },
+    }));
+
+    triggerHaptic('success', hapticEnabled);
+    sound.playStamp();
   };
 
   // Student Actions
@@ -380,44 +503,44 @@ export const AppProvider = ({ children }) => {
   const resetAllProgress = () => {
     triggerHaptic('warning', hapticEnabled);
     sound.playStamp();
-    setStudentData(getInitialStudentData());
-    setCurrentModuleId('module_1');
+    setStudentData(getInitialStudentData(modulesList));
+    setCurrentModuleId('module_2');
     setActiveTab('journal');
   };
 
-  // Academic status calculation for the student
+  // Academic status calculation
   const score = studentData.score;
   let academicStatus = {
-    title: 'Отчислена на ковер к профессору',
-    level: 'danger',
-    color: 'text-red-400',
-    badge: 'На грани отчисления',
-    description: 'Срочно требуется приватная аудиенция в кабинете научного руководителя.',
+    title: 'Любимая дипломница с отличием',
+    level: 'royal',
+    color: 'text-[#d4af37]',
+    badge: 'Абсолютный триумф',
+    description: 'Безоговорочный авторитет, личный ключ от кафедры и безграничное внимание научрука.',
   };
 
-  if (score >= 90) {
+  if (score < 30) {
     academicStatus = {
-      title: 'Любимая дипломница с отличием',
-      level: 'royal',
-      color: 'text-[#d4af37]',
-      badge: 'Абсолютный триумф',
-      description: 'Безоговорочный авторитет, личный ключ от кафедры и безграничное внимание научрука.',
+      title: 'Отчислена на ковер к профессору',
+      level: 'danger',
+      color: 'text-red-400',
+      badge: 'На грани отчисления',
+      description: 'Срочно требуется приватная аудиенция в кабинете научного руководителя.',
     };
-  } else if (score >= 60) {
-    academicStatus = {
-      title: 'Прилежная аспирантка с особыми привилегиями',
-      level: 'high',
-      color: 'text-amber-300',
-      badge: 'Высшая лига',
-      description: 'Профессор доверяет вам ключевые закрытые материалы и заседания.',
-    };
-  } else if (score >= 30) {
+  } else if (score < 60) {
     academicStatus = {
       title: 'Условно допущена к закрытой аттестации',
       level: 'medium',
       color: 'text-emerald-400',
       badge: 'Аттестована',
       description: 'Вы на верном пути, но профессор пристально следит за каждым вашим шагом.',
+    };
+  } else if (score < 90) {
+    academicStatus = {
+      title: 'Прилежная аспирантка с особыми привилегиями',
+      level: 'high',
+      color: 'text-amber-300',
+      badge: 'Высшая лига',
+      description: 'Профессор доверяет вам ключевые закрытые материалы и заседания.',
     };
   }
 
@@ -433,6 +556,9 @@ export const AppProvider = ({ children }) => {
     setActiveTab: switchTab,
     currentModuleId,
     setCurrentModuleId,
+    // Modules list
+    modulesList,
+    addNewModule,
     // Shared Student data
     studentData,
     score: studentData.score,
@@ -465,7 +591,7 @@ export const AppProvider = ({ children }) => {
     selectedStudyModule,
     setSelectedStudyModule,
     resetAllProgress,
-    scenarioData,
+    scenarioData: { modules: modulesList },
     rewardsData,
     defaultAccounts,
   };

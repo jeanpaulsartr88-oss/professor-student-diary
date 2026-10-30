@@ -32,6 +32,9 @@
     color: #fffffe;
     overflow: hidden;
     font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
   }
 }
 
@@ -54,9 +57,12 @@
 /* Typography Utility Classes */
 .font-display {
   font-family: 'Cinzel', Georgia, serif;
+  letter-spacing: 0.04em;
 }
 .font-serif-vintage {
   font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.12em;
+  line-height: 1.48;
 }
 .font-body {
   font-family: 'Montserrat', system-ui, sans-serif;
