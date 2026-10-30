@@ -66,7 +66,7 @@ export const ProfessorJournalScreen = () => {
             Надзор за дипломницей: {studentName}
           </h2>
           <p className="text-xs text-[#a7a9be] font-serif-vintage italic mt-0.5">
-            Текущий статус дипломницы: <span className={academicStatus.color}>«{academicStatus.title}»</span>
+            Прием и разбор материалов — в личном чате Telegram. Здесь выставляются баллы, выносятся вердикты и утверждаются привилегии.
           </p>
         </div>
 
