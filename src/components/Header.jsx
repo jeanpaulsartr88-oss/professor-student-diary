@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Award, AlertTriangle, Feather, User, LogOut, ArrowLeftRight } from 'lucide-react';
+import { Award, AlertTriangle, Feather, User, LogOut, ArrowLeftRight, GraduationCap } from 'lucide-react';
+import { SecretLetterModal } from './SecretLetterModal';
 
 export const Header = () => {
+  const [isSecretOpen, setIsSecretOpen] = useState(false);
   const {
     currentUser,
     score,
@@ -11,6 +13,7 @@ export const Header = () => {
     users,
     switchAccountById,
     logout,
+    hapticEnabled,
   } = useApp();
 
   const isProfessor = currentUser?.role === 'professor';
@@ -72,6 +75,15 @@ export const Header = () => {
           <span className="text-xs font-semibold text-[#e57373]">{penalties}</span>
         </button>
 
+        {/* Secret Graduation Cap (Конфедератка) Button */}
+        <button
+          onClick={() => setIsSecretOpen(true)}
+          className="w-8 h-8 rounded-full bg-gradient-to-br from-[#722f37] to-[#241a24] border border-[#d4af37]/70 hover:border-[#f3e29f] flex items-center justify-center text-[#f3e29f] shadow-[0_0_10px_rgba(212,175,55,0.25)] hover:scale-105 active:scale-95 transition-all"
+          title="Секретный выпускной протокол (Конфедератка)"
+        >
+          <GraduationCap className="w-4 h-4 text-[#f3e29f]" />
+        </button>
+
         {/* Profile / Dossier Button */}
         <button
           onClick={() => setActiveTab('profile')}
@@ -90,6 +102,13 @@ export const Header = () => {
           <LogOut className="w-3.5 h-3.5" />
         </button>
       </div>
+
+      {/* Secret Hogwarts Letter Modal */}
+      <SecretLetterModal
+        isOpen={isSecretOpen}
+        onClose={() => setIsSecretOpen(false)}
+        hapticEnabled={hapticEnabled}
+      />
     </header>
   );
 };

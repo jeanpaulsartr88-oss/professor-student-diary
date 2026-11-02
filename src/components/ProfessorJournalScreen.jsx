@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { AddModuleModal } from './AddModuleModal';
+import { StudyNotesModal } from './StudyNotesModal';
 import {
   Landmark,
   UserCheck,
@@ -16,6 +17,7 @@ import {
   MapPin,
   FileText,
   CalendarPlus,
+  BookOpen,
 } from 'lucide-react';
 
 export const ProfessorJournalScreen = () => {
@@ -37,6 +39,7 @@ export const ProfessorJournalScreen = () => {
   const [notesInput, setNotesInput] = useState(professorNotes || '');
   const [isSavedNotes, setIsSavedNotes] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [activeNotesModule, setActiveNotesModule] = useState(null);
 
   const handleSaveNotes = (e) => {
     e.preventDefault();
@@ -212,6 +215,15 @@ export const ProfessorJournalScreen = () => {
                 {/* Professor Actions */}
                 <div className="flex items-center gap-2">
                   <button
+                    onClick={() => setActiveNotesModule(module)}
+                    className="py-2 px-3 rounded-xl bg-[#16161a] hover:bg-[#2e2b38] text-[#f3e29f] text-xs font-semibold border border-[#d4af37]/40 active:scale-95 transition-all flex items-center justify-center space-x-1 shrink-0"
+                    title="Открыть методический конспект к модулю"
+                  >
+                    <BookOpen className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <span>Конспект</span>
+                  </button>
+
+                  <button
                     onClick={() => openCabinetWithModule(module.id)}
                     className={`flex-1 py-2 px-3 rounded-xl text-xs font-semibold tracking-wide border shadow-md active:scale-95 transition-all flex items-center justify-center space-x-1.5 ${
                       status === 'ready_to_report'
@@ -273,6 +285,14 @@ export const ProfessorJournalScreen = () => {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
       />
+
+      {/* Study Notes Modal */}
+      {activeNotesModule && (
+        <StudyNotesModal
+          module={activeNotesModule}
+          onClose={() => setActiveNotesModule(null)}
+        />
+      )}
     </div>
   );
 };

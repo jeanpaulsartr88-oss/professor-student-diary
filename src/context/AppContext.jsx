@@ -7,11 +7,11 @@ import { sound } from '../utils/sound';
 
 const AppContext = createContext(null);
 
-const STORAGE_USERS_KEY = 'academic_quest_users_v5';
-const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v5';
-const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v5';
-const STORAGE_MODULES_KEY = 'academic_quest_modules_v5';
-const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v5';
+const STORAGE_USERS_KEY = 'academic_quest_users_v6';
+const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v6';
+const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v6';
+const STORAGE_MODULES_KEY = 'academic_quest_modules_v6';
+const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v6';
 
 const getInitialModulesState = (modules) => {
   const state = {};
@@ -22,9 +22,17 @@ const getInitialModulesState = (modules) => {
         grade: '100 баллов (Отлично с отличием)',
         verdict: 'Визуальный трактат студентки Изы признан образцом пластической гармонии. Профессор Жунус Абаевич зафиксировал идеальное следование канонам эстетической субординации и абсолютное доверие научному руководству.',
         scoreEarned: 100,
-        completedAt: 'Вчера, 21:00',
+        completedAt: 'Этап I сдан (100 б.)',
       };
     } else if (mod.id === 'module_2') {
+      state[mod.id] = {
+        status: 'completed',
+        grade: '100 баллов (Отлично с отличием)',
+        verdict: 'Рукописный конспект первоисточников в полумраке аудитории №402 принят с наивысшим баллом (100/100). Продемонстрировано безупречное смирение, преодоление трепета перед наставником и готовность к полному растворению формальной дистанции в Малой библиотеке.',
+        scoreEarned: 100,
+        completedAt: 'Только что сдан (100 б.)',
+      };
+    } else if (mod.id === 'module_3') {
       state[mod.id] = {
         status: 'ready_to_report',
         grade: null,
@@ -46,12 +54,12 @@ const getInitialModulesState = (modules) => {
 };
 
 const getInitialStudentData = (modules) => ({
-  score: 100,
+  score: 200,
   penalties: 0,
   modulesState: getInitialModulesState(modules),
-  claimedRewards: ['reward_1', 'reward_2'],
-  approvedRewards: ['reward_1', 'reward_2', 'reward_3'],
-  professorNotes: 'Дипломница Иза Любознательная виртуозно раскрыла тему пластического канона в домашних визуальных штудиях. Первичная аттестация закрыта на высшие 100 баллов кафедры. Назначен допуск ко второму модулю тет-а-тет в аудитории №402.',
+  claimedRewards: ['reward_1', 'reward_2', 'reward_3', 'reward_4'],
+  approvedRewards: ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'],
+  professorNotes: 'Дипломница Иза Любознательная блестяще завершила оба первых этапа (по 100 баллов за каждый). Академическая дистанция стремительно тает. Назначен допуск к Модулю III — вечернему коллокиуму в Малой профессорской библиотеке при камине и вине.',
 });
 
 export const AppProvider = ({ children }) => {
@@ -99,7 +107,7 @@ export const AppProvider = ({ children }) => {
 
   // Navigation
   const [activeTab, setActiveTab] = useState('journal');
-  const [currentModuleId, setCurrentModuleId] = useState('module_2');
+  const [currentModuleId, setCurrentModuleId] = useState('module_3');
 
   // Shared Student Academic Progress
   const [studentData, setStudentData] = useState(() => {
@@ -107,17 +115,29 @@ export const AppProvider = ({ children }) => {
       const saved = localStorage.getItem(STORAGE_STUDENT_DATA_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.modulesState?.['module_1']?.status !== 'completed' || parsed.modulesState?.['module_1']?.scoreEarned !== 100) {
+        if (
+          parsed.modulesState?.['module_1']?.status !== 'completed' ||
+          parsed.modulesState?.['module_2']?.status !== 'completed' ||
+          parsed.modulesState?.['module_2']?.scoreEarned !== 100
+        ) {
+          parsed.modulesState = parsed.modulesState || {};
           parsed.modulesState['module_1'] = {
             status: 'completed',
             grade: '100 баллов (Отлично с отличием)',
             verdict: 'Визуальный трактат студентки Изы признан образцом пластической гармонии. Профессор Жунус Абаевич зафиксировал идеальное следование канонам эстетической субординации и абсолютное доверие научному руководству.',
             scoreEarned: 100,
-            completedAt: 'Вчера, 21:00',
+            completedAt: 'Этап I сдан (100 б.)',
           };
-          parsed.score = Math.max(100, parsed.score || 0);
-          if (!parsed.modulesState['module_2'] || parsed.modulesState['module_2'].status === 'not_started') {
-            parsed.modulesState['module_2'] = {
+          parsed.modulesState['module_2'] = {
+            status: 'completed',
+            grade: '100 баллов (Отлично с отличием)',
+            verdict: 'Рукописный конспект первоисточников в полумраке аудитории №402 принят с наивысшим баллом (100/100). Продемонстрировано безупречное смирение, преодоление трепета перед наставником и готовность к полному растворению формальной дистанции в Малой библиотеке.',
+            scoreEarned: 100,
+            completedAt: 'Только что сдан (100 б.)',
+          };
+          parsed.score = Math.max(200, parsed.score || 0);
+          if (!parsed.modulesState['module_3'] || parsed.modulesState['module_3'].status === 'not_started') {
+            parsed.modulesState['module_3'] = {
               status: 'ready_to_report',
               grade: null,
               verdict: null,

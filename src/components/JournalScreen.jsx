@@ -137,9 +137,20 @@ export const JournalScreen = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center space-x-1 text-[10px] text-[#a7a9be] truncate max-w-[170px]">
-                    <MapPin className="w-3 h-3 text-[#722f37] shrink-0" />
-                    <span className="truncate">{module.room || 'Кабинет кафедры'}</span>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setActiveNotesModule(module)}
+                      className="flex items-center space-x-1 text-[10px] px-2 py-0.5 rounded-lg bg-[#24222e] hover:bg-[#2e2b38] text-[#f3e29f] border border-[#d4af37]/40 active:scale-95 transition-all shadow-sm"
+                      title="Перечитать конспект и методические материалы к модулю"
+                    >
+                      <BookOpen className="w-3 h-3 text-[#d4af37]" />
+                      <span>Конспект</span>
+                    </button>
+
+                    <div className="flex items-center space-x-1 text-[10px] text-[#a7a9be] truncate max-w-[130px]">
+                      <MapPin className="w-3 h-3 text-[#722f37] shrink-0" />
+                      <span className="truncate">{module.room || 'Кабинет кафедры'}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -153,10 +164,20 @@ export const JournalScreen = () => {
                   </p>
                 </div>
 
-                {/* Description Preview */}
-                <p className="text-xs text-[#8f90a6] leading-relaxed line-clamp-2 bg-[#16161a]/60 p-2.5 rounded-xl border border-[#2e2b38]/60">
-                  {module.description}
-                </p>
+                {/* Description Preview - Clickable to open synopsis */}
+                <div
+                  onClick={() => setActiveNotesModule(module)}
+                  className="cursor-pointer group p-2.5 rounded-xl bg-[#16161a]/60 hover:bg-[#16161a] border border-[#2e2b38]/60 hover:border-[#d4af37]/40 transition-all space-y-1"
+                  title="Нажмите, чтобы прочитать полный конспект и методические указания"
+                >
+                  <p className="text-xs text-[#8f90a6] group-hover:text-[#c5c6d0] leading-relaxed line-clamp-2">
+                    {module.description}
+                  </p>
+                  <span className="text-[10px] text-[#d4af37] font-serif-vintage italic flex items-center space-x-1">
+                    <BookOpen className="w-3 h-3" />
+                    <span>Открыть закрытый конспект и план подготовки →</span>
+                  </span>
+                </div>
 
                 {/* Status Indicator Pipeline: [Не начато] -> [Учит тему] -> [Готова] -> [Сдано] */}
                 <div className="pt-1">
@@ -217,31 +238,41 @@ export const JournalScreen = () => {
                 {/* Actions Based on Current Status */}
                 <div className="pt-2">
                   {status === 'not_started' && (
-                    <button
-                      onClick={() => {
-                        startStudying(module.id);
-                        setActiveNotesModule(module);
-                      }}
-                      disabled={isScoreLocked}
-                      className={`w-full py-2.5 px-4 rounded-xl text-xs font-semibold tracking-wide border flex items-center justify-center space-x-2 active:scale-95 transition-all ${
-                        isScoreLocked
-                          ? 'bg-[#24222e] text-[#717388] border-[#3a3546] cursor-not-allowed'
-                          : 'bg-[#24222e] hover:bg-[#2e2b38] text-[#fffffe] border-[#3a3546] hover:border-[#d4af37]/40 shadow-sm'
-                      }`}
-                    >
-                      {isScoreLocked ? (
-                        <>
-                          <Lock className="w-3.5 h-3.5" />
-                          <span>Требуется {module.min_score_required} баллов (у вас {score})</span>
-                        </>
-                      ) : (
-                        <>
-                          <BookOpen className="w-3.5 h-3.5 text-[#d4af37]" />
-                          <span>Приступить к изучению темы</span>
-                          <ChevronRight className="w-3.5 h-3.5 opacity-60" />
-                        </>
-                      )}
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setActiveNotesModule(module)}
+                        disabled={isScoreLocked}
+                        className="flex-1 py-2.5 px-3 rounded-xl bg-[#24222e] hover:bg-[#2e2b38] text-[#c5c6d0] text-xs font-medium border border-[#3a3546] active:scale-95 transition-all flex items-center justify-center space-x-1.5 disabled:opacity-40"
+                      >
+                        <BookOpen className="w-3.5 h-3.5 text-[#d4af37]" />
+                        <span>Конспект темы</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          startStudying(module.id);
+                          setActiveNotesModule(module);
+                        }}
+                        disabled={isScoreLocked}
+                        className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-semibold tracking-wide border flex items-center justify-center space-x-1.5 active:scale-95 transition-all ${
+                          isScoreLocked
+                            ? 'bg-[#1c1b22] text-[#717388] border-[#3a3546] cursor-not-allowed'
+                            : 'bg-gradient-to-r from-[#722f37] to-[#4a1820] text-[#fffffe] border-[#d4af37]/40 shadow-sm hover:from-[#8e3b45] hover:to-[#5c1e28]'
+                        }`}
+                      >
+                        {isScoreLocked ? (
+                          <>
+                            <Lock className="w-3.5 h-3.5" />
+                            <span>Нужно {module.min_score_required} б.</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Приступить</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#f3e29f]" />
+                          </>
+                        )}
+                      </button>
+                    </div>
                   )}
 
                   {status === 'learning' && (
@@ -265,28 +296,39 @@ export const JournalScreen = () => {
                   )}
 
                   {status === 'ready_to_report' && (
-                    <button
-                      onClick={() => openCabinetWithModule(module.id)}
-                      className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#722f37] via-[#8e3b45] to-[#4a1820] text-[#fffffe] text-xs font-bold tracking-wide border border-[#d4af37] shadow-[0_4px_16px_rgba(114,47,55,0.4)] active:scale-95 transition-all flex items-center justify-center space-x-2 animate-pulse"
-                    >
-                      <Sparkles className="w-4 h-4 text-[#f3e29f]" />
-                      <span>✍️ ДОЛОЖИТЬ О ГОТОВНОСТИ МАТЕРИАЛА</span>
-                      <ChevronRight className="w-4 h-4 text-[#f3e29f]" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setActiveNotesModule(module)}
+                        className="py-2.5 px-3 rounded-xl bg-[#24222e] hover:bg-[#2e2b38] text-[#f3e29f] text-xs font-semibold border border-[#d4af37]/40 active:scale-95 transition-all flex items-center justify-center space-x-1.5 shrink-0"
+                        title="Перечитать конспект и методические рекомендации"
+                      >
+                        <BookOpen className="w-3.5 h-3.5 text-[#d4af37]" />
+                        <span>Конспект</span>
+                      </button>
+
+                      <button
+                        onClick={() => openCabinetWithModule(module.id)}
+                        className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#722f37] via-[#8e3b45] to-[#4a1820] text-[#fffffe] text-xs font-bold tracking-wide border border-[#d4af37] shadow-[0_4px_16px_rgba(114,47,55,0.4)] active:scale-95 transition-all flex items-center justify-center space-x-1.5 animate-pulse"
+                      >
+                        <Sparkles className="w-4 h-4 text-[#f3e29f]" />
+                        <span>✍️ ДОЛОЖИТЬ О ГОТОВНОСТИ</span>
+                        <ChevronRight className="w-4 h-4 text-[#f3e29f]" />
+                      </button>
+                    </div>
                   )}
 
                   {status === 'completed' && (
                     <div className="flex gap-2">
                       <button
                         onClick={() => setActiveNotesModule(module)}
-                        className="flex-1 py-2 px-3 rounded-xl bg-[#16161a] hover:bg-[#24222e] text-[#a7a9be] text-xs border border-[#2e2b38] active:scale-95 transition-all flex items-center justify-center space-x-1"
+                        className="flex-1 py-2 px-3 rounded-xl bg-[#16161a] hover:bg-[#24222e] text-[#f3e29f] text-xs font-medium border border-[#d4af37]/30 active:scale-95 transition-all flex items-center justify-center space-x-1"
                       >
-                        <BookOpen className="w-3.5 h-3.5 text-[#a7a9be]" />
+                        <BookOpen className="w-3.5 h-3.5 text-[#d4af37]" />
                         <span>Конспект темы</span>
                       </button>
                       <button
                         onClick={() => openCabinetWithModule(module.id)}
-                        className="flex-1 py-2 px-3 rounded-xl bg-[#24222e] hover:bg-[#2e2b38] text-[#d4af37] text-xs font-medium border border-[#d4af37]/30 active:scale-95 transition-all flex items-center justify-center space-x-1"
+                        className="flex-1 py-2 px-3 rounded-xl bg-[#24222e] hover:bg-[#2e2b38] text-[#c5c6d0] text-xs font-medium border border-[#3a3546] active:scale-95 transition-all flex items-center justify-center space-x-1"
                       >
                         <RotateCcw className="w-3.5 h-3.5" />
                         <span>Пересдать диалог</span>

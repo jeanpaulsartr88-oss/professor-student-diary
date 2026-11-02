@@ -3,6 +3,7 @@ import { useApp } from '../context/AppContext';
 import { triggerHaptic } from '../utils/telegram';
 import { sound } from '../utils/sound';
 import confetti from 'canvas-confetti';
+import { StudyNotesModal } from './StudyNotesModal';
 import {
   ShieldAlert,
   Flame,
@@ -14,6 +15,7 @@ import {
   Feather,
   Plus,
   AlertTriangle,
+  BookOpen,
 } from 'lucide-react';
 
 export const ProfessorCabinetScreen = () => {
@@ -38,6 +40,7 @@ export const ProfessorCabinetScreen = () => {
   const [history, setHistory] = useState([]);
   const [examFinished, setExamFinished] = useState(false);
   const [finalResult, setFinalResult] = useState(null);
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   const messagesEndRef = useRef(null);
 
@@ -140,13 +143,24 @@ export const ProfessorCabinetScreen = () => {
             </span>
           </div>
 
-          <button
-            onClick={handleRestart}
-            className="text-[10px] text-[#a7a9be] hover:text-[#fffffe] flex items-center space-x-1 active:scale-95 transition-all"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Начать опрос сначала</span>
-          </button>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setIsNotesOpen(true)}
+              className="text-[10px] text-[#f3e29f] hover:text-[#fffffe] flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-[#16161a] border border-[#d4af37]/40 active:scale-95 transition-all shadow-sm"
+              title="Открыть методический конспект и критерии к модулю"
+            >
+              <BookOpen className="w-3 h-3 text-[#d4af37]" />
+              <span>Конспект</span>
+            </button>
+
+            <button
+              onClick={handleRestart}
+              className="text-[10px] text-[#a7a9be] hover:text-[#fffffe] flex items-center space-x-1 px-2 py-0.5 rounded-lg bg-[#16161a] border border-[#2e2b38] active:scale-95 transition-all"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Сброс</span>
+            </button>
+          </div>
         </div>
 
         {/* Dynamic Mood Selection */}
@@ -319,6 +333,13 @@ export const ProfessorCabinetScreen = () => {
           </div>
         )}
       </div>
+
+      {isNotesOpen && (
+        <StudyNotesModal
+          module={currentModule}
+          onClose={() => setIsNotesOpen(false)}
+        />
+      )}
     </div>
   );
 };
