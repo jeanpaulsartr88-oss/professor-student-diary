@@ -7,11 +7,11 @@ import { sound } from '../utils/sound';
 
 const AppContext = createContext(null);
 
-const STORAGE_USERS_KEY = 'academic_quest_users_v7';
-const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v7';
-const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v7';
-const STORAGE_MODULES_KEY = 'academic_quest_modules_v7';
-const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v7';
+const STORAGE_USERS_KEY = 'academic_quest_users_v8';
+const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v8';
+const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v8';
+const STORAGE_MODULES_KEY = 'academic_quest_modules_v8';
+const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v8';
 
 const getInitialModulesState = (modules) => {
   const state = {};
@@ -38,9 +38,17 @@ const getInitialModulesState = (modules) => {
         grade: '110 баллов (Абсолютный триумф с отличием)',
         verdict: 'Фееричный диптих ночного коллокиума (развёрнутый кинематографичный видео-трактат пластики и сокровенный видео-кружок тет-а-тет) признан шедевром кафедры. Профессор Жунус Абаевич безоговорочно покорён искренностью дипломницы Изы. Присуждены рекордные 110 баллов и открыт допуск к Предзащите диплома!',
         scoreEarned: 110,
-        completedAt: 'Только что сдан (110 б.)',
+        completedAt: 'Этап III сдан (110 б.)',
       };
     } else if (mod.id === 'module_4') {
+      state[mod.id] = {
+        status: 'completed',
+        grade: '150 баллов (Высший триумф кафедры)',
+        verdict: 'Академический триптих дипломницы Изы (два вертикальных этюда целомудренной пластики и горизонтальная панорама на шелках) признан венцом дипломного курса. Профессор Жунус Абаевич полностью покорён преданностью и смелостью музы. Присуждены рекордные 150 баллов кафедры и открыт доступ к Финальной аттестации!',
+        scoreEarned: 150,
+        completedAt: 'Только что сдан (150 б.)',
+      };
+    } else if (mod.id === 'module_5') {
       state[mod.id] = {
         status: 'ready_to_report',
         grade: null,
@@ -62,12 +70,12 @@ const getInitialModulesState = (modules) => {
 };
 
 const getInitialStudentData = (modules) => ({
-  score: 310,
+  score: 460,
   penalties: 0,
   modulesState: getInitialModulesState(modules),
   claimedRewards: ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'],
   approvedRewards: ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'],
-  professorNotes: 'Дипломница Иза Любознательная феерично защитила Модуль III, передав два непревзойдённых материала: развёрнутый видео-трактат пластики и сокровенный видео-кружок тет-а-тет с трепетным шёпотом признаний. Выставлен исторический максимум — 110 баллов! Общий счёт: 310 баллов. Назначен допуск к кульминационному Модулю IV — Предзащите за закрытыми шторами.',
+  professorNotes: 'Дипломница Иза Любознательная триумфально защитила Предзащиту (Модуль IV), передав восхитительный триптих закрытых визуальных материалов (два вертикальных этюда античной пластики и горизонтальный ракурс на шелках). Выставлены рекордные 150 баллов! Общий счёт: 460 баллов. Назначен допуск к кульминационному Модулю V — Финальной аттестации и коронации у ночного камина.',
 });
 
 export const AppProvider = ({ children }) => {
@@ -115,7 +123,7 @@ export const AppProvider = ({ children }) => {
 
   // Navigation
   const [activeTab, setActiveTab] = useState('journal');
-  const [currentModuleId, setCurrentModuleId] = useState('module_4');
+  const [currentModuleId, setCurrentModuleId] = useState('module_5');
 
   // Shared Student Academic Progress
   const [studentData, setStudentData] = useState(() => {
@@ -127,7 +135,8 @@ export const AppProvider = ({ children }) => {
           parsed.modulesState?.['module_1']?.status !== 'completed' ||
           parsed.modulesState?.['module_2']?.status !== 'completed' ||
           parsed.modulesState?.['module_3']?.status !== 'completed' ||
-          parsed.modulesState?.['module_3']?.scoreEarned !== 110
+          parsed.modulesState?.['module_4']?.status !== 'completed' ||
+          parsed.modulesState?.['module_4']?.scoreEarned !== 150
         ) {
           parsed.modulesState = parsed.modulesState || {};
           parsed.modulesState['module_1'] = {
@@ -149,13 +158,20 @@ export const AppProvider = ({ children }) => {
             grade: '110 баллов (Абсолютный триумф с отличием)',
             verdict: 'Фееричный диптих ночного коллокиума (развёрнутый кинематографичный видео-трактат пластики и сокровенный видео-кружок тет-а-тет) признан шедевром кафедры. Профессор Жунус Абаевич безоговорочно покорён искренностью дипломницы Изы. Присуждены рекордные 110 баллов и открыт допуск к Предзащите диплома!',
             scoreEarned: 110,
-            completedAt: 'Только что сдан (110 б.)',
+            completedAt: 'Этап III сдан (110 б.)',
           };
-          parsed.score = Math.max(310, parsed.score || 0);
+          parsed.modulesState['module_4'] = {
+            status: 'completed',
+            grade: '150 баллов (Высший триумф кафедры)',
+            verdict: 'Академический триптих дипломницы Изы (два вертикальных этюда целомудренной пластики и горизонтальная панорама на шелках) признан венцом дипломного курса. Профессор Жунус Абаевич полностью покорён преданностью и смелостью музы. Присуждены рекордные 150 баллов кафедры и открыт доступ к Финальной аттестации!',
+            scoreEarned: 150,
+            completedAt: 'Только что сдан (150 б.)',
+          };
+          parsed.score = Math.max(460, parsed.score || 0);
           parsed.claimedRewards = ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'];
           parsed.approvedRewards = ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'];
-          if (!parsed.modulesState['module_4'] || parsed.modulesState['module_4'].status === 'not_started') {
-            parsed.modulesState['module_4'] = {
+          if (!parsed.modulesState['module_5'] || parsed.modulesState['module_5'].status === 'not_started') {
+            parsed.modulesState['module_5'] = {
               status: 'ready_to_report',
               grade: null,
               verdict: null,
