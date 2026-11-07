@@ -88,7 +88,7 @@ export const ProfessorGradebookScreen = () => {
               <span>Текущее прилежание дипломницы:</span>
             </span>
             <span className="font-bold text-sm text-[#f3e29f] font-mono">
-              {score} / 100
+              {score > 100 ? `${score} б. (Сверхрекорд)` : `${score} / 100`}
             </span>
           </div>
 

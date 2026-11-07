@@ -111,7 +111,7 @@ export const ProfessorJournalScreen = () => {
             <div className="bg-[#24222e] p-2 rounded-xl border border-[#3a3546] space-y-1">
               <span className="text-[10px] text-[#a7a9be] flex items-center justify-between">
                 <span>Прилежание:</span>
-                <strong className="text-[#f3e29f] font-bold">{score} / 100</strong>
+                <strong className="text-[#f3e29f] font-bold">{score > 100 ? `${score} б.` : `${score} / 100`}</strong>
               </span>
               <div className="flex gap-1.5">
                 <button

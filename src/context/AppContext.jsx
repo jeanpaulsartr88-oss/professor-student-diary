@@ -7,11 +7,11 @@ import { sound } from '../utils/sound';
 
 const AppContext = createContext(null);
 
-const STORAGE_USERS_KEY = 'academic_quest_users_v8';
-const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v8';
-const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v8';
-const STORAGE_MODULES_KEY = 'academic_quest_modules_v8';
-const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v8';
+const STORAGE_USERS_KEY = 'academic_quest_users_v9';
+const STORAGE_CURRENT_USER_KEY = 'academic_quest_current_user_v9';
+const STORAGE_STUDENT_DATA_KEY = 'academic_quest_student_data_v9';
+const STORAGE_MODULES_KEY = 'academic_quest_modules_v9';
+const STORAGE_SETTINGS_KEY = 'academic_quest_settings_v9';
 
 const getInitialModulesState = (modules) => {
   const state = {};
@@ -46,15 +46,15 @@ const getInitialModulesState = (modules) => {
         grade: '150 баллов (Высший триумф кафедры)',
         verdict: 'Академический триптих дипломницы Изы (два вертикальных этюда целомудренной пластики и горизонтальная панорама на шелках) признан венцом дипломного курса. Профессор Жунус Абаевич полностью покорён преданностью и смелостью музы. Присуждены рекордные 150 баллов кафедры и открыт доступ к Финальной аттестации!',
         scoreEarned: 150,
-        completedAt: 'Только что сдан (150 б.)',
+        completedAt: 'Этап IV сдан (150 б.)',
       };
     } else if (mod.id === 'module_5') {
       state[mod.id] = {
-        status: 'ready_to_report',
-        grade: null,
-        verdict: null,
-        scoreEarned: 0,
-        completedAt: null,
+        status: 'completed',
+        grade: '1000 баллов (Абсолютный триумф • Сверхзачет)',
+        verdict: 'Беспрецедентная аттестация на рекордную 1000 баллов! Дипломница Иза явила себя во всем блеске непревзойденной красоты и эстетического великолепия. Профессор Жунус Абаевич констатирует полнейшую ультра- и сверхудовлетворенность кафедры ее смелостью, безупречной пластикой и трепетной преданностью наставнику. По обоюдному согласию сторон сессия закрыта навечно, а обучение кафедры решено продолжить на углубленной приватной программе!',
+        scoreEarned: 1000,
+        completedAt: 'Финальный триумф (1000 б.)',
       };
     } else {
       state[mod.id] = {
@@ -70,12 +70,12 @@ const getInitialModulesState = (modules) => {
 };
 
 const getInitialStudentData = (modules) => ({
-  score: 460,
+  score: 1460,
   penalties: 0,
   modulesState: getInitialModulesState(modules),
   claimedRewards: ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'],
   approvedRewards: ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'],
-  professorNotes: 'Дипломница Иза Любознательная триумфально защитила Предзащиту (Модуль IV), передав восхитительный триптих закрытых визуальных материалов (два вертикальных этюда античной пластики и горизонтальный ракурс на шелках). Выставлены рекордные 150 баллов! Общий счёт: 460 баллов. Назначен допуск к кульминационному Модулю V — Финальной аттестации и коронации у ночного камина.',
+  professorNotes: 'Дипломница Иза Любознательная триумфально завершила Модуль V на рекордные 1000 баллов (общий счет кафедры: 1460 баллов)! Научный руководитель Жунус Абаевич официально констатирует предельную ультра- и сверхудовлетворенность кафедры: студентка раскрыла истинное эстетическое совершенство, доверие и абсолютную преданность. По совместному решению профессора и его музы базовый курс закрыт с отличием, а обучение кафедры продолжится на высшей программе индивидуального наставничества!',
 });
 
 export const AppProvider = ({ children }) => {
@@ -136,7 +136,8 @@ export const AppProvider = ({ children }) => {
           parsed.modulesState?.['module_2']?.status !== 'completed' ||
           parsed.modulesState?.['module_3']?.status !== 'completed' ||
           parsed.modulesState?.['module_4']?.status !== 'completed' ||
-          parsed.modulesState?.['module_4']?.scoreEarned !== 150
+          parsed.modulesState?.['module_5']?.status !== 'completed' ||
+          parsed.modulesState?.['module_5']?.scoreEarned !== 1000
         ) {
           parsed.modulesState = parsed.modulesState || {};
           parsed.modulesState['module_1'] = {
@@ -165,20 +166,19 @@ export const AppProvider = ({ children }) => {
             grade: '150 баллов (Высший триумф кафедры)',
             verdict: 'Академический триптих дипломницы Изы (два вертикальных этюда целомудренной пластики и горизонтальная панорама на шелках) признан венцом дипломного курса. Профессор Жунус Абаевич полностью покорён преданностью и смелостью музы. Присуждены рекордные 150 баллов кафедры и открыт доступ к Финальной аттестации!',
             scoreEarned: 150,
-            completedAt: 'Только что сдан (150 б.)',
+            completedAt: 'Этап IV сдан (150 б.)',
           };
-          parsed.score = Math.max(460, parsed.score || 0);
+          parsed.modulesState['module_5'] = {
+            status: 'completed',
+            grade: '1000 баллов (Абсолютный триумф • Сверхзачет)',
+            verdict: 'Беспрецедентная аттестация на рекордную 1000 баллов! Дипломница Иза явила себя во всем блеске непревзойденной красоты и эстетического великолепия. Профессор Жунус Абаевич констатирует полнейшую ультра- и сверхудовлетворенность кафедры ее смелостью, безупречной пластикой и трепетной преданностью наставнику. По обоюдному согласию сторон сессия закрыта навечно, а обучение кафедры решено продолжить на углубленной приватной программе!',
+            scoreEarned: 1000,
+            completedAt: 'Финальный триумф (1000 б.)',
+          };
+          parsed.score = Math.max(1460, parsed.score || 0);
           parsed.claimedRewards = ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'];
           parsed.approvedRewards = ['reward_1', 'reward_2', 'reward_3', 'reward_4', 'reward_5'];
-          if (!parsed.modulesState['module_5'] || parsed.modulesState['module_5'].status === 'not_started') {
-            parsed.modulesState['module_5'] = {
-              status: 'ready_to_report',
-              grade: null,
-              verdict: null,
-              scoreEarned: 0,
-              completedAt: null,
-            };
-          }
+          parsed.professorNotes = 'Дипломница Иза Любознательная триумфально завершила Модуль V на рекордные 1000 баллов (общий счет кафедры: 1460 баллов)! Научный руководитель Жунус Абаевич официально констатирует предельную ультра- и сверхудовлетворенность кафедры: студентка раскрыла истинное эстетическое совершенство, доверие и абсолютную преданность. По совместному решению профессора и его музы базовый курс закрыт с отличием, а обучение кафедры продолжится на высшей программе индивидуального наставничества!';
         }
         return parsed;
       }

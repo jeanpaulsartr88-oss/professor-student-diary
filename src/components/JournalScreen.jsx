@@ -228,7 +228,7 @@ export const JournalScreen = () => {
                           {modState.grade || 'Сдано'}
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#c5c6d0] italic font-serif-vintage line-clamp-2">
+                      <p className="text-[11px] text-[#c5c6d0] italic font-serif-vintage leading-relaxed mt-0.5">
                         «{modState.verdict || 'Материал успешно сдан научному руководителю.'}»
                       </p>
                     </div>
